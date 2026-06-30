@@ -1,0 +1,140 @@
+/* app.wxss — 全局样式 */
+
+/* ===== 设计变量（用注释记录，WXSS 不支持 CSS 变量） =====
+   主色调:  #e94560 (活力红)
+   辅色调:  #0f3460 (深蓝)
+   背景色:  #f5f5f5
+   卡片色:  #ffffff
+   文字色:  #333333 / #666666 / #999999
+   成功色:  #27ae60
+   警告色:  #f39c12
+   ============================================= */
+
+page {
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+/* ===== 通用容器 ===== */
+.container {
+  padding: 24rpx;
+  min-height: 100vh;
+}
+
+/* ===== 卡片 ===== */
+.card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+/* ===== 按钮 ===== */
+.btn-primary {
+  background-color: #e94560;
+  color: #ffffff;
+  border-radius: 12rpx;
+  padding: 20rpx 40rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+  text-align: center;
+}
+
+.btn-primary:active {
+  background-color: #d63850;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: #e94560;
+  border: 2rpx solid #e94560;
+  border-radius: 12rpx;
+  padding: 18rpx 38rpx;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+/* ===== 文字层级 ===== */
+.text-primary {
+  color: #333333;
+}
+.text-secondary {
+  color: #666666;
+}
+.text-muted {
+  color: #999999;
+}
+.text-accent {
+  color: #e94560;
+}
+
+/* ===== 排版工具 ===== */
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.text-bold {
+  font-weight: 700;
+}
+.text-sm {
+  font-size: 24rpx;
+}
+.text-lg {
+  font-size: 36rpx;
+}
+.text-xl {
+  font-size: 44rpx;
+}
+
+/* ===== 间距工具 ===== */
+.mt-8 {
+  margin-top: 8rpx;
+}
+.mt-16 {
+  margin-top: 16rpx;
+}
+.mt-24 {
+  margin-top: 24rpx;
+}
+.mb-16 {
+  margin-bottom: 16rpx;
+}
+.mb-24 {
+  margin-bottom: 24rpx;
+}
+
+/* ===== Flex 布局 ===== */
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+.flex-between {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.flex-1 {
+  flex: 1;
+}
+
+/* ===== 分割线 ===== */
+.divider {
+  height: 1rpx;
+  background-color: #f0f0f0;
+  margin: 16rpx 0;
+}

@@ -1,0 +1,47 @@
+<!-- pages/history/history.wxml — 记录页 -->
+<view class="container">
+  <!-- 空状态 -->
+  <view wx:if="{{isEmpty && !loading}}" class="card empty-card">
+    <text class="empty-icon">📋</text>
+    <text class="empty-text">还没有训练记录</text>
+    <text class="empty-desc">完成一次训练后就会出现在这里</text>
+  </view>
+
+  <!-- 按日期分组的记录列表 -->
+  <block wx:for="{{groupedWorkouts}}" wx:key="date">
+    <!-- 日期标题 -->
+    <view class="date-header flex-between">
+      <text class="date-title">{{item.dateText}}</text>
+      <text class="date-count">{{item.workouts.length}} 次训练</text>
+    </view>
+
+    <!-- 当天训练卡片 -->
+    <view
+      wx:for="{{item.workouts}}"
+      wx:key="_id"
+      wx:for-item="workout"
+      class="card history-card"
+      bindtap="viewDetail"
+      data-id="{{workout._id}}"
+    >
+      <view class="flex-between">
+        <view class="history-main">
+          <text class="history-duration">{{workout.durationText}}</text>
+          <text class="history-date">{{workout.date}}</text>
+        </view>
+        <text class="history-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 加载更多 -->
+  <view wx:if="{{hasMore}}" class="load-more">
+    <text wx:if="{{loading}}">加载中...</text>
+    <text wx:else>上拉加载更多</text>
+  </view>
+
+  <!-- 没有更多 -->
+  <view wx:if="{{!hasMore && groupedWorkouts.length > 0}}" class="load-end">
+    <text>— 没有更多了 —</text>
+  </view>
+</view>

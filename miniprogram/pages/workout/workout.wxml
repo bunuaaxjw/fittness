@@ -1,0 +1,103 @@
+<!-- pages/workout/workout.wxml — 训练页 -->
+<view class="container">
+  <!-- 未开始训练：引导页 -->
+  <view wx:if="{{!isWorkoutActive}}" class="workout-start card text-center">
+    <text class="start-icon">🏋️</text>
+    <text class="start-title">准备开始训练</text>
+    <text class="start-desc">记录你的每一次进步</text>
+    <button class="btn-primary" bindtap="startWorkout">开始新训练</button>
+  </view>
+
+  <!-- 训练进行中 -->
+  <view wx:if="{{isWorkoutActive}}">
+    <!-- 计时器卡片 -->
+    <view class="card timer-card flex-between">
+      <view>
+        <text class="timer-label">训练时长</text>
+        <text class="timer-value">{{timerText}}</text>
+      </view>
+      <text class="timer-badge">进行中</text>
+    </view>
+
+    <!-- 已选动作列表 -->
+    <block wx:for="{{selectedExercises}}" wx:key="exercise_id">
+      <view class="card exercise-card">
+        <!-- 动作标题行 -->
+        <view class="ex-header flex-between">
+          <view class="flex-row">
+            <text class="ex-name">{{item.name}}</text>
+            <text class="ex-part">{{item.body_part}}</text>
+          </view>
+          <text class="ex-remove" bindtap="removeExercise" data-index="{{index}}">✕</text>
+        </view>
+
+        <view class="divider"></view>
+
+        <!-- 组列表头 -->
+        <view class="set-header flex-row">
+          <text class="set-col set-col--num">组</text>
+          <text class="set-col set-col--weight">重量(kg)</text>
+          <text class="set-col set-col--reps">次数</text>
+          <text class="set-col set-col--notes">备注</text>
+          <text class="set-col set-col--action"></text>
+        </view>
+
+        <!-- 每组记录 -->
+        <view wx:for="{{item.sets}}" wx:key="index" wx:for-item="set" wx:for-index="setIdx"
+              class="set-row flex-row">
+          <text class="set-col set-col--num">{{setIdx + 1}}</text>
+          <input
+            class="set-input"
+            type="digit"
+            placeholder="0"
+            value="{{set.weight_kg}}"
+            data-ex-idx="{{index}}"
+            data-set-idx="{{setIdx}}"
+            data-field="weight_kg"
+            bindinput="updateSetValue"
+          />
+          <input
+            class="set-input"
+            type="number"
+            placeholder="0"
+            value="{{set.reps}}"
+            data-ex-idx="{{index}}"
+            data-set-idx="{{setIdx}}"
+            data-field="reps"
+            bindinput="updateSetValue"
+          />
+          <input
+            class="set-input set-input--notes"
+            type="text"
+            placeholder="备注"
+            value="{{set.notes}}"
+            data-ex-idx="{{index}}"
+            data-set-idx="{{setIdx}}"
+            data-field="notes"
+            bindinput="updateSetValue"
+          />
+          <text class="set-col set-col--action set-del"
+                bindtap="removeSet"
+                data-ex-idx="{{index}}"
+                data-set-idx="{{setIdx}}">−</text>
+        </view>
+
+        <!-- 添加组按钮 -->
+        <button class="btn-outline btn-add-set" bindtap="addSet" data-index="{{index}}">
+          + 添加组
+        </button>
+      </view>
+    </block>
+
+    <!-- 底部操作栏 -->
+    <view class="workout-actions">
+      <button class="btn-outline" bindtap="openExercisePicker">
+        + 添加动作
+      </button>
+
+      <button class="btn-primary" bindtap="finishWorkout" loading="{{saving}}">
+        完成训练
+      </button>
+    </view>
+  </view>
+</view>

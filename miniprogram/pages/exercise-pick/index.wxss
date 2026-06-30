@@ -1,0 +1,123 @@
+/* pages/exercise-pick/index.wxss */
+
+.container {
+  padding-bottom: 40rpx;
+}
+
+/* 搜索栏 */
+.search-bar {
+  margin: 20rpx 24rpx;
+}
+
+.search-bar input {
+  width: 100%;
+  background-color: #f5f5f5;
+  border-radius: 16rpx;
+  padding: 20rpx 28rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* 筛选滚动区 */
+.filter-scroll {
+  padding: 0 24rpx;
+  white-space: nowrap;
+  margin-bottom: 20rpx;
+}
+
+.filter-scroll--small {
+  margin-bottom: 28rpx;
+}
+
+.filter-tag {
+  display: inline-block;
+  padding: 14rpx 28rpx;
+  margin-right: 16rpx;
+  border-radius: 32rpx;
+  background-color: #ffffff;
+  font-size: 28rpx;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.filter-tag--active {
+  background-color: #fce4e8;
+  color: #e8455b;
+  font-weight: 600;
+}
+
+.filter-tag--small {
+  padding: 10rpx 24rpx;
+  font-size: 24rpx;
+}
+
+/* 加载中 */
+.loading {
+  text-align: center;
+  padding: 120rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 动作列表项 */
+.exercise-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 24rpx 16rpx;
+  padding: 24rpx 28rpx;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+}
+
+.exercise-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.exercise-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+
+.exercise-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.exercise-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+
+.exercise-meta {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.arrow {
+  font-size: 36rpx;
+  color: #ccc;
+}
+
+/* 复选框 */
+.checkbox {
+  font-size: 36rpx;
+  color: #ccc;
+  padding: 8rpx;
+}
+
+.checkbox--checked {
+  color: #e8455b;
+}
+
+/* 空结果 */
+.empty {
+  text-align: center;
+  padding: 120rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}

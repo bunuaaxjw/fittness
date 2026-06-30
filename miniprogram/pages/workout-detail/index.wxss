@@ -1,0 +1,192 @@
+/* pages/workout-detail/index.wxss — 训练详情页样式 */
+
+/* ===== 概览卡片 ===== */
+.summary-card {
+  padding: 28rpx;
+}
+
+.summary-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.summary-date {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.summary-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.summary-duration {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #e94560;
+}
+
+.btn-edit {
+  font-size: 24rpx;
+  color: #e94560;
+  padding: 6rpx 18rpx;
+  border: 1rpx solid #e94560;
+  border-radius: 8rpx;
+  margin-top: 8rpx;
+}
+
+.btn-edit--cancel {
+  color: #999;
+  border-color: #999;
+}
+
+/* ===== 动作卡片 ===== */
+.exercise-card {
+  padding: 24rpx 28rpx 20rpx;
+}
+
+.detail-ex-header {
+  margin-bottom: 8rpx;
+}
+
+.detail-ex-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+/* ===== 组列头 ===== */
+.set-header {
+  padding: 8rpx 0;
+}
+
+.set-head-col {
+  font-size: 22rpx;
+  color: #999;
+  text-align: center;
+}
+
+.set-head-col--num {
+  width: 60rpx;
+}
+
+.set-head-col--weight {
+  flex: 1;
+}
+
+.set-head-col--reps {
+  flex: 1;
+}
+
+.set-head-col--notes {
+  flex: 1.5;
+}
+
+.set-head-col--action {
+  width: 50rpx;
+}
+
+/* ===== 组记录行 ===== */
+.set-row {
+  margin-bottom: 16rpx;
+  align-items: center;
+}
+
+.set-cell {
+  font-size: 28rpx;
+  color: #333;
+  text-align: center;
+}
+
+.set-cell--num {
+  width: 60rpx;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.set-cell--weight {
+  flex: 1;
+}
+
+.set-cell--reps {
+  flex: 1;
+}
+
+.set-cell--notes {
+  flex: 1.5;
+  color: #666;
+  font-size: 24rpx;
+}
+
+.set-cell--action {
+  width: 50rpx;
+}
+
+/* ===== 编辑模式输入框 ===== */
+.set-input {
+  background-color: #f8f8f8;
+  border-radius: 8rpx;
+  padding: 12rpx 8rpx;
+  font-size: 26rpx;
+  text-align: center;
+  margin: 0 6rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.set-input--notes {
+  flex: 1.5;
+}
+
+.set-del {
+  font-size: 36rpx;
+  color: #ccc;
+  width: 50rpx;
+  text-align: center;
+}
+
+/* ===== 添加组按钮 ===== */
+.btn-add-set {
+  width: 100%;
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  padding: 14rpx 0;
+}
+
+/* ===== 备注 ===== */
+.notes-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.notes-content {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.notes-textarea {
+  width: 100%;
+  min-height: 150rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+/* ===== 保存按钮 ===== */
+.btn-save {
+  width: 100%;
+  margin-top: 32rpx;
+}

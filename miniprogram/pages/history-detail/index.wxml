@@ -1,0 +1,46 @@
+<!-- pages/history-detail/index.wxml — 历史训练详情页（只读） -->
+<view class="container">
+  <!-- 概览 -->
+  <view class="card summary-card flex-between">
+    <view>
+      <text class="summary-title">训练记录</text>
+      <text class="summary-date">{{workout.date}}</text>
+    </view>
+    <text class="summary-duration">{{durationText}}</text>
+  </view>
+
+  <!-- 动作列表 -->
+  <block wx:for="{{exercises}}" wx:key="exercise_id" wx:for-item="exercise">
+    <view class="card exercise-card">
+      <text class="detail-ex-name">{{exercise.name}}</text>
+
+      <view class="divider"></view>
+
+      <!-- 组列头 -->
+      <view class="set-header flex-row">
+        <text class="set-head-col set-head-col--num">组</text>
+        <text class="set-head-col set-head-col--weight">重量(kg)</text>
+        <text class="set-head-col set-head-col--reps">次数</text>
+        <text class="set-head-col set-head-col--notes">备注</text>
+      </view>
+
+      <!-- 组记录 -->
+      <view wx:for="{{exercise.sets}}" wx:key="index" wx:for-item="set"
+            class="set-row flex-row">
+        <text class="set-cell set-cell--num">{{index + 1}}</text>
+        <text class="set-cell set-cell--weight">{{set.weight_kg || '-'}}</text>
+        <text class="set-cell set-cell--reps">{{set.reps || '-'}}</text>
+        <text class="set-cell set-cell--notes">{{set.notes || '-'}}</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 训练备注 -->
+  <view class="card" wx:if="{{workout.notes}}">
+    <text class="notes-title">备注</text>
+    <text class="notes-content">{{workout.notes}}</text>
+  </view>
+
+  <!-- 再来一次 -->
+  <button class="btn-primary btn-again" bindtap="startAgain">再来一次</button>
+</view>

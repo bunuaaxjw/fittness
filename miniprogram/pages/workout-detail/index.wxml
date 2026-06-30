@@ -1,0 +1,88 @@
+<!-- pages/workout-detail/index.wxml — 训练详情页 -->
+<view class="container">
+  <!-- 概览信息 -->
+  <view class="card summary-card flex-between">
+    <view>
+      <text class="summary-title">训练记录</text>
+      <text class="summary-date">{{workout.date}}</text>
+    </view>
+    <view class="summary-right">
+      <text class="summary-duration">{{durationText}}</text>
+      <text wx:if="{{!isEdit}}" class="btn-edit" bindtap="toggleEdit">编辑</text>
+      <text wx:else class="btn-edit btn-edit--cancel" bindtap="toggleEdit">取消</text>
+    </view>
+  </view>
+
+  <!-- 动作列表 -->
+  <block wx:for="{{exercises}}" wx:key="exercise_id" wx:for-item="exercise" wx:for-index="exIdx">
+    <view class="card exercise-card">
+      <view class="detail-ex-header">
+        <text class="detail-ex-name">{{exercise.name}}</text>
+      </view>
+
+      <view class="divider"></view>
+
+      <!-- 组列头 -->
+      <view class="set-header flex-row">
+        <text class="set-head-col set-head-col--num">组</text>
+        <text class="set-head-col set-head-col--weight">重量(kg)</text>
+        <text class="set-head-col set-head-col--reps">次数</text>
+        <text class="set-head-col set-head-col--notes">备注</text>
+        <text wx:if="{{isEdit}}" class="set-head-col set-head-col--action"></text>
+      </view>
+
+      <!-- 组记录 -->
+      <view wx:for="{{exercise.sets}}" wx:key="index" wx:for-item="set" wx:for-index="setIdx"
+            class="set-row flex-row">
+        <text class="set-cell set-cell--num">{{setIdx + 1}}</text>
+
+        <!-- 编辑模式：input -->
+        <block wx:if="{{isEdit}}">
+          <input class="set-input" type="digit" placeholder="0"
+                 value="{{set.weight_kg}}"
+                 data-ex-idx="{{exIdx}}" data-set-idx="{{setIdx}}" data-field="weight_kg"
+                 bindinput="updateSetValue" />
+          <input class="set-input" type="number" placeholder="0"
+                 value="{{set.reps}}"
+                 data-ex-idx="{{exIdx}}" data-set-idx="{{setIdx}}" data-field="reps"
+                 bindinput="updateSetValue" />
+          <input class="set-input set-input--notes" type="text" placeholder="备注"
+                 value="{{set.notes}}"
+                 data-ex-idx="{{exIdx}}" data-set-idx="{{setIdx}}" data-field="notes"
+                 bindinput="updateSetValue" />
+          <text class="set-cell set-cell--action set-del"
+                bindtap="removeSet"
+                data-ex-idx="{{exIdx}}" data-set-idx="{{setIdx}}">−</text>
+        </block>
+
+        <!-- 查看模式：纯文本 -->
+        <block wx:else>
+          <text class="set-cell set-cell--weight">{{set.weight_kg || '-'}}</text>
+          <text class="set-cell set-cell--reps">{{set.reps || '-'}}</text>
+          <text class="set-cell set-cell--notes">{{set.notes || '-'}}</text>
+        </block>
+      </view>
+
+      <!-- 编辑模式：添加组 -->
+      <button wx:if="{{isEdit}}" class="btn-outline btn-add-set"
+              bindtap="addSet" data-index="{{exIdx}}">
+        + 添加组
+      </button>
+    </view>
+  </block>
+
+  <!-- 备注 -->
+  <view class="card">
+    <text class="notes-title">备注</text>
+    <text wx:if="{{!isEdit}}" class="notes-content">{{workout.notes || '无'}}</text>
+    <textarea wx:else class="notes-textarea" value="{{notes}}"
+              placeholder="训练感受、注意事项..."
+              bindinput="onNotesInput" />
+  </view>
+
+  <!-- 编辑模式：保存 -->
+  <button wx:if="{{isEdit}}" class="btn-primary btn-save"
+          bindtap="saveWorkout" loading="{{saving}}">
+    保存修改
+  </button>
+</view>

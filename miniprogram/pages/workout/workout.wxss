@@ -1,0 +1,169 @@
+/* pages/workout/workout.wxss — 训练页样式 */
+
+/* ===== 引导页 ===== */
+.workout-start {
+  padding: 120rpx 24rpx 80rpx;
+}
+
+.start-icon {
+  display: block;
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+}
+
+.start-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.start-desc {
+  display: block;
+  color: #999;
+  font-size: 28rpx;
+  margin-bottom: 48rpx;
+}
+
+/* ===== 计时器卡片 ===== */
+.timer-card {
+  padding: 32rpx 28rpx;
+}
+
+.timer-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.timer-value {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #e94560;
+  font-family: 'SF Mono', 'Menlo', monospace;
+}
+
+.timer-badge {
+  background-color: #e94560;
+  color: #fff;
+  font-size: 22rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+}
+
+/* ===== 动作卡片 ===== */
+.exercise-card {
+  padding: 24rpx 28rpx 20rpx;
+}
+
+.ex-header {
+  margin-bottom: 8rpx;
+}
+
+.ex-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.ex-part {
+  font-size: 24rpx;
+  color: #999;
+  background-color: #f5f5f5;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+  margin-left: 12rpx;
+}
+
+.ex-remove {
+  font-size: 32rpx;
+  color: #ccc;
+  padding: 8rpx;
+}
+
+/* ===== 组列表头 ===== */
+.set-header {
+  padding: 8rpx 0;
+}
+
+.set-col {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.set-col--num {
+  width: 60rpx;
+  text-align: center;
+}
+
+.set-col--weight {
+  flex: 1;
+  text-align: center;
+}
+
+.set-col--reps {
+  flex: 1;
+  text-align: center;
+}
+
+.set-col--notes {
+  flex: 1.5;
+  text-align: center;
+}
+
+.set-col--action {
+  width: 50rpx;
+  text-align: center;
+}
+
+/* ===== 组记录行 ===== */
+.set-row {
+  margin-bottom: 16rpx;
+  align-items: center;
+}
+
+.set-input {
+  background-color: #f8f8f8;
+  border-radius: 8rpx;
+  padding: 12rpx 8rpx;
+  font-size: 26rpx;
+  text-align: center;
+  margin: 0 6rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.set-input--notes {
+  flex: 1.5;
+}
+
+.set-del {
+  font-size: 36rpx;
+  color: #ccc;
+  text-align: center;
+  width: 50rpx;
+}
+
+/* ===== 添加组按钮 ===== */
+.btn-add-set {
+  width: 100%;
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  padding: 14rpx 0;
+}
+
+/* ===== 底部操作 ===== */
+.workout-actions {
+  margin-top: 8rpx;
+}
+
+.workout-actions .btn-outline {
+  width: 100%;
+  margin-bottom: 20rpx;
+}
+
+.workout-actions .btn-primary {
+  width: 100%;
+}

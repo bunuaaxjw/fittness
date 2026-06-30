@@ -1,0 +1,85 @@
+/* pages/history/history.wxss — 记录页样式 */
+
+/* ===== 空状态 ===== */
+.empty-card {
+  padding: 100rpx 24rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  display: block;
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+}
+
+.empty-text {
+  display: block;
+  color: #666;
+  font-size: 28rpx;
+}
+
+.empty-desc {
+  display: block;
+  color: #999;
+  font-size: 24rpx;
+  margin-top: 8rpx;
+}
+
+/* ===== 日期标题 ===== */
+.date-header {
+  padding: 24rpx 8rpx 12rpx;
+}
+
+.date-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.date-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* ===== 训练卡片 ===== */
+.history-card {
+  padding: 24rpx 28rpx;
+  margin-bottom: 16rpx;
+}
+
+.history-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-duration {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #e94560;
+}
+
+.history-date {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.history-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+}
+
+/* ===== 加载更��� ===== */
+.load-more {
+  text-align: center;
+  padding: 30rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.load-end {
+  text-align: center;
+  padding: 30rpx;
+  font-size: 24rpx;
+  color: #ccc;
+}

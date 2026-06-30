@@ -1,0 +1,70 @@
+<!-- pages/exercise-pick/index.wxml — 选择动作页 -->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input
+      placeholder="搜索动作..."
+      value="{{searchKeyword}}"
+      bindinput="onSearchInput"
+    />
+  </view>
+
+  <!-- 身体部位筛选 -->
+  <scroll-view scroll-x class="filter-scroll">
+    <text
+      wx:for="{{bodyParts}}"
+      wx:key="*this"
+      class="filter-tag {{activeBodyPart === item ? 'filter-tag--active' : ''}}"
+      bindtap="onBodyPartTap"
+      data-part="{{item}}"
+    >{{item}}</text>
+  </scroll-view>
+
+  <!-- 类别筛选 -->
+  <scroll-view scroll-x class="filter-scroll filter-scroll--small">
+    <text
+      wx:for="{{categories}}"
+      wx:key="*this"
+      class="filter-tag filter-tag--small {{activeCategory === item ? 'filter-tag--active' : ''}}"
+      bindtap="onCategoryTap"
+      data-category="{{item}}"
+    >{{item}}</text>
+  </scroll-view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading">加载中...</view>
+
+  <!-- 动作列表 -->
+  <view wx:else>
+    <view
+      wx:for="{{filteredExercises}}"
+      wx:key="_id"
+      class="exercise-item"
+      bindtap="{{mode === 'pick' ? 'selectExercise' : ''}}"
+      data-id="{{item._id}}"
+    >
+      <view class="exercise-left">
+        <text class="exercise-icon">{{item.icon || '💪'}}</text>
+        <view class="exercise-info">
+          <text class="exercise-name">{{item.name}}</text>
+          <text class="exercise-meta">{{item.body_part}} · {{item.category}}</text>
+        </view>
+      </view>
+      <!-- pick 模式：右箭头；manage 模式：勾选框 -->
+      <text wx:if="{{mode === 'pick'}}" class="arrow">›</text>
+      <view
+        wx:else
+        class="checkbox {{selectedIds.includes(item._id) ? 'checkbox--checked' : ''}}"
+        catchtap="toggleSelect"
+        data-id="{{item._id}}"
+      >
+        {{selectedIds.includes(item._id) ? '✓' : '○'}}
+      </view>
+    </view>
+
+    <!-- 空结果 -->
+    <view wx:if="{{filteredExercises.length === 0}}" class="empty">
+      <text>没有匹配的动作</text>
+    </view>
+  </view>
+</view>

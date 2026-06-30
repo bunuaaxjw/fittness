@@ -1,0 +1,45 @@
+<!-- pages/index/index.wxml — 首页 -->
+<view class="container">
+  <!-- 今日状态卡片 -->
+  <view class="card today-card">
+    <view class="today-header flex-between">
+      <text class="section-title">今日训练</text>
+      <text class="weekly-subtitle">{{weeklyStats.count}} 次 · {{weeklyStats.totalMinutes}} 分钟</text>
+    </view>
+
+    <!-- 未开始状态 -->
+    <view wx:if="{{todayStatus === 'not_started'}}" class="today-body">
+      <text class="today-empty-text">今天还没有训练记录</text>
+      <button class="btn-primary" bindtap="startWorkout">开始训练</button>
+    </view>
+
+    <!-- 已完成状态 -->
+    <view wx:if="{{todayStatus === 'completed'}}" class="today-body today-body--done">
+      <text class="today-done-icon">✅</text>
+      <text class="today-done-text">今日训练完成！</text>
+      <text class="today-done-detail">{{todayWorkout.duration_min || 0}} 分钟</text>
+    </view>
+  </view>
+
+  <!-- 最近训练 -->
+  <view class="card" wx:if="{{recentWorkouts.length > 0}}">
+    <text class="section-title">最近训练</text>
+    <block wx:for="{{recentWorkouts}}" wx:key="_id">
+      <view class="recent-item flex-between" bindtap="viewWorkout" data-id="{{item._id}}">
+        <view class="recent-left">
+          <text class="recent-date">{{item.dateText}}</text>
+          <text class="recent-duration">{{item.durationText}}</text>
+        </view>
+        <text class="recent-arrow">›</text>
+      </view>
+      <view class="divider" wx:if="{{index < recentWorkouts.length - 1}}"></view>
+    </block>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{recentWorkouts.length === 0 && todayStatus === 'not_started' && !loading}}"
+        class="card empty-card">
+    <text class="empty-icon">💪</text>
+    <text class="empty-text">开始你的第一次训练吧！</text>
+  </view>
+</view>

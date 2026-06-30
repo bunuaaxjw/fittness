@@ -1,0 +1,58 @@
+<!-- pages/profile/profile.wxml — 个人中心 -->
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="card user-card">
+    <view class="flex-row">
+      <!-- 头像 -->
+      <view wx:if="{{!userInfo}}" class="avatar-placeholder" bindtap="getUserProfile">
+        <text class="avatar-emoji">👤</text>
+      </view>
+      <image wx:else src="{{userInfo.avatarUrl}}" mode="aspectFill" class="avatar-img" />
+
+      <view class="user-info">
+        <text wx:if="{{!userInfo}}" class="user-name" bindtap="getUserProfile">点击登录</text>
+        <text wx:else class="user-name">{{userInfo.nickName}}</text>
+        <text class="user-desc">记录每一次进步</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 累计数据 -->
+  <view class="card stats-card">
+    <text class="section-title">累计数据</text>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">{{totalStats.workoutCount}}</text>
+        <text class="stat-label">次训练</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{totalStats.totalMinutes}}</text>
+        <text class="stat-label">分钟</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{totalStats.totalSets}}</text>
+        <text class="stat-label">组</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 常用动作 -->
+  <view class="card">
+    <view class="flex-between section-header">
+      <text class="section-title">常用动作</text>
+      <text class="manage-btn" bindtap="manageExercises">管理</text>
+    </view>
+    <view wx:if="{{commonExercises.length === 0}}" class="empty-hint">
+      完成训练后这里会出现常用动作
+    </view>
+    <view wx:for="{{commonExercises}}" wx:key="name" class="common-item flex-between">
+      <text class="common-name">{{item.name}}</text>
+      <text class="common-count">{{item.count}} 组</text>
+    </view>
+  </view>
+
+  <!-- 版本 -->
+  <view class="version-text">
+    <text>健身记录 v0.1.0</text>
+  </view>
+</view>
