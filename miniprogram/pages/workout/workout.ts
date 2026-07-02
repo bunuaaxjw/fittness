@@ -1,7 +1,6 @@
 // pages/workout/workout.ts — 训练页
-import { add } from '../../utils/db';
 import { formatDate } from '../../utils/format';
-import { showError } from '../../utils/error';
+import { showError, showSuccess } from '../../utils/error';
 
 interface IPageData {
   isWorkoutActive: boolean;
@@ -141,52 +140,49 @@ Page<IPageData, {}>({
 
     const durationMin = Math.round(this.data.elapsedSeconds / 60);
 
+    // 构建 sets 数据
+    const sets: Array<{
+      exercise_id: string;
+      exercise_name: string;
+      weight_kg: number;
+      reps: number;
+      notes: string;
+      sort_order: number;
+    }> = [];
+    let setOrder = 0;
+    for (const item of this.data.selectedExercises) {
+      for (const set of item.sets) {
+        if (!set.weight_kg && !set.reps) continue;
+        sets.push({
+          exercise_id: item.exercise._id,
+          exercise_name: item.exercise.name,
+          weight_kg: parseFloat(String(set.weight_kg)) || 0,
+          reps: parseInt(String(set.reps)) || 0,
+          notes: set.notes || '',
+          sort_order: setOrder++,
+        });
+      }
+    }
+
     try {
-      // 1. 创建训练记录
-      const workoutRes = await add('workouts', {
-        date: formatDate(),
-        duration_min: durationMin,
-        notes: '',
-        created_at: new Date(),
+      const res: ICloudFunctionResult = await wx.cloud.callFunction({
+        name: 'saveWorkout',
+        data: {
+          mode: 'create',
+          date: formatDate(),
+          duration_min: durationMin,
+          notes: '',
+          sets,
+        },
       });
 
-      if (!workoutRes.success) {
-        throw new Error('创建训练记录失败');
-      }
-
-      const workoutId = workoutRes._id!;
-
-      // 2. 批量添加组记录
-      let setOrder = 0;
-      let hasError = false;
-      for (const item of this.data.selectedExercises) {
-        for (const set of item.sets) {
-          if (!set.weight_kg && !set.reps) continue;
-
-          const setRes = await add('sets', {
-            workout_id: workoutId,
-            exercise_id: item.exercise._id,
-            exercise_name: item.exercise.name,
-            weight_kg: parseFloat(String(set.weight_kg)) || 0,
-            reps: parseInt(String(set.reps)) || 0,
-            notes: set.notes || '',
-            sort_order: setOrder,
-          });
-
-          if (!setRes.success) {
-            hasError = true;
-          }
-          setOrder++;
-        }
-      }
-
       wx.hideLoading();
-      if (hasError) {
-        showError('部分组记录保存失败，请检查');
+      if (res.result.success) {
+        showSuccess('训练已保存！');
+        this.resetWorkout();
       } else {
-        wx.showToast({ title: '训练已保存！', icon: 'success' });
+        showError(res.result.error || '保存失败，请重试');
       }
-      this.resetWorkout();
     } catch (err) {
       wx.hideLoading();
       showError('保存失败，请重试', err);

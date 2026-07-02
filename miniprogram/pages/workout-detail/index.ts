@@ -1,7 +1,7 @@
 // pages/workout-detail/index.ts — 训练详情/编辑页
-import { getById, getSetsByWorkout, update, remove, add } from '../../utils/db';
+import { getById, getSetsByWorkout } from '../../utils/db';
 import { formatDuration } from '../../utils/format';
-import { showError } from '../../utils/error';
+import { showError, showSuccess } from '../../utils/error';
 
 interface IPageData {
   workoutId: string | null;
@@ -148,49 +148,62 @@ Page<IPageData, {}>({
     this.setData({ saving: true });
     wx.showLoading({ title: '保存中...' });
 
+    // 先获取旧的 set IDs
+    let oldSetIds: string[] = [];
     try {
-      await update('workouts', this.data.workoutId, { notes: this.data.notes });
-
-      // 删除旧组记录
       const oldSets = await getSetsByWorkout(this.data.workoutId);
       if (oldSets.success) {
-        for (const set of oldSets.data) {
-          if (set._id) {
-            await remove('sets', set._id);
-          }
-        }
+        oldSetIds = oldSets.data.map((s: ISetRecord) => s._id).filter(Boolean);
       }
+    } catch {
+      // 获取旧组失败继续，新旧都会在云函数中处理
+    }
 
-      // 重新插入组记录
-      let setOrder = 0;
-      let hasError = false;
-      for (const exercise of this.data.exercises) {
-        for (const set of exercise.sets) {
-          if (!set.weight_kg && !set.reps) continue;
-
-          const setRes = await add('sets', {
-            workout_id: this.data.workoutId,
-            exercise_id: exercise.exercise_id,
-            exercise_name: exercise.exercise_name,
-            weight_kg: parseFloat(String(set.weight_kg)) || 0,
-            reps: parseInt(String(set.reps)) || 0,
-            notes: set.notes || '',
-            sort_order: setOrder,
-          });
-
-          if (!setRes.success) hasError = true;
-          setOrder++;
-        }
+    // 构建新 sets 数据
+    const sets: Array<{
+      exercise_id: string;
+      exercise_name: string;
+      weight_kg: number;
+      reps: number;
+      notes: string;
+      sort_order: number;
+    }> = [];
+    let setOrder = 0;
+    for (const exercise of this.data.exercises) {
+      for (const set of exercise.sets) {
+        if (!set.weight_kg && !set.reps) continue;
+        sets.push({
+          exercise_id: exercise.exercise_id,
+          exercise_name: exercise.exercise_name,
+          weight_kg: parseFloat(String(set.weight_kg)) || 0,
+          reps: parseInt(String(set.reps)) || 0,
+          notes: set.notes || '',
+          sort_order: setOrder++,
+        });
       }
+    }
+
+    try {
+      const res: ICloudFunctionResult = await wx.cloud.callFunction({
+        name: 'saveWorkout',
+        data: {
+          mode: 'update',
+          workoutId: this.data.workoutId,
+          notes: this.data.notes,
+          sets,
+          oldSetIds,
+        },
+      });
 
       wx.hideLoading();
-      if (hasError) {
-        showError('部分数据保存失败，请检查');
+      if (res.result.success) {
+        showSuccess('已保存');
+        this.setData({ isEdit: false, saving: false });
+        wx.setNavigationBarTitle({ title: '训练详情' });
       } else {
-        wx.showToast({ title: '已保存', icon: 'success' });
+        showError(res.result.error || '保存失败');
+        this.setData({ saving: false });
       }
-      this.setData({ isEdit: false, saving: false });
-      wx.setNavigationBarTitle({ title: '训练详情' });
     } catch (err) {
       wx.hideLoading();
       showError('保存失败', err);
