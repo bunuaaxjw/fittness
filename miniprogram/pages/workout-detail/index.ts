@@ -1,5 +1,5 @@
 // pages/workout-detail/index.ts — 训练详情/编辑页
-import { getById, getSetsByWorkout } from '../../utils/db';
+import { getById, getSetsByWorkout, update, remove, add } from '../../utils/db';
 import { formatDuration } from '../../utils/format';
 import { showError, showSuccess } from '../../utils/error';
 import {
@@ -122,48 +122,53 @@ Page<IPageData, {}>({
 
   async saveWorkout() {
     if (!this.data.workoutId) return;
-
     this.setData({ saving: true });
     wx.showLoading({ title: '保存中...' });
 
-    // 获取旧的 set IDs 供云函数删除
     let oldSetIds: string[] = [];
     try {
       const oldSets = await getSetsByWorkout(this.data.workoutId);
-      if (oldSets.success) {
-        oldSetIds = oldSets.data.map((s: ISetRecord) => s._id).filter(Boolean);
-      }
-    } catch {
-      // 获取旧组失败继续
-    }
+      if (oldSets.success) { oldSetIds = oldSets.data.map((s: ISetRecord) => s._id).filter(Boolean); }
+    } catch { /* 不阻塞 */ }
 
     const sets = buildSaveSets(this.data.exercises);
+    let success = false;
 
     try {
       const res: ICloudFunctionResult = await wx.cloud.callFunction({
         name: 'saveWorkout',
-        data: {
-          mode: 'update',
-          workoutId: this.data.workoutId,
-          notes: this.data.notes,
-          sets,
-          oldSetIds,
-        },
+        data: { mode: 'update', workoutId: this.data.workoutId, notes: this.data.notes, sets, oldSetIds },
       });
+      success = res.result.success;
+      if (!success) showError(res.result.error || '保存失败');
+    } catch {
+      console.warn('[workout-detail] 云函数不可用，使用客户端保存');
+      success = await this.clientUpdate(oldSetIds, sets);
+    }
 
-      wx.hideLoading();
-      if (res.result.success) {
-        showSuccess('已保存');
-        this.setData({ isEdit: false, saving: false });
-        wx.setNavigationBarTitle({ title: '训练详情' });
-      } else {
-        showError(res.result.error || '保存失败');
-        this.setData({ saving: false });
-      }
-    } catch (err) {
-      wx.hideLoading();
-      showError('保存失败', err);
+    wx.hideLoading();
+    if (success) {
+      showSuccess('已保存');
+      this.setData({ isEdit: false, saving: false });
+      wx.setNavigationBarTitle({ title: '训练详情' });
+    } else {
       this.setData({ saving: false });
     }
+  },
+
+  async clientUpdate(oldSetIds: string[], sets: any[]): Promise<boolean> {
+    try {
+      await update('workouts', this.data.workoutId!, { notes: this.data.notes });
+      for (const setId of oldSetIds) { await remove('sets', setId); }
+      let setOrder = 0;
+      for (const set of sets) {
+        await add('sets', {
+          workout_id: this.data.workoutId, exercise_id: set.exercise_id,
+          exercise_name: set.exercise_name, weight_kg: set.weight_kg,
+          reps: set.reps, notes: set.notes, sort_order: setOrder++,
+        });
+      }
+      return true;
+    } catch { return false; }
   },
 });
