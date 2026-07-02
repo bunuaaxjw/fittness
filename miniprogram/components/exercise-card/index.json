@@ -1,5 +1,6 @@
 {
   "component": true,
+  "styleIsolation": "apply-shared",
   "usingComponents": {
     "set-row": "../set-row/index"
   }

@@ -1,5 +1,7 @@
 /* components/set-row/index.wxss */
 .set-row {
+  display: flex;
+  flex-direction: row;
   align-items: center;
   padding: 12rpx 0;
 }
