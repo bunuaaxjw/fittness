@@ -1,0 +1,9 @@
+{
+  "name": "saveWorkout",
+  "version": "1.0.0",
+  "description": "事务性保存训练记录",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

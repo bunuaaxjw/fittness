@@ -1,10 +1,11 @@
-// utils/format.js — 格式化工具
+/**
+ * 工具函数 — 日期/时间格式化
+ */
 
 /**
  * 格式化日期为 'YYYY-MM-DD'
- * @param {Date|string|number} date
  */
-function formatDate(date) {
+function formatDate(date?: Date | string | number): string {
   const d = date ? new Date(date) : new Date();
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -15,7 +16,7 @@ function formatDate(date) {
 /**
  * 格式化日期为 'MM月DD日'
  */
-function formatDateShort(date) {
+function formatDateShort(date: Date | string | number): string {
   const d = new Date(date);
   const month = d.getMonth() + 1;
   const day = d.getDate();
@@ -23,10 +24,9 @@ function formatDateShort(date) {
 }
 
 /**
- * 格式化日期为相对时间描述
- * 今天 / 昨天 / 前天 / MM月DD日
+ * 格式化日期为相对时间描述（今天 / 昨天 / 前天 / MM月DD日）
  */
-function formatDateRelative(dateStr) {
+function formatDateRelative(dateStr: string): string {
   const today = formatDate();
   const yesterday = formatDate(Date.now() - 86400000);
   const twoDaysAgo = formatDate(Date.now() - 172800000);
@@ -39,10 +39,9 @@ function formatDateRelative(dateStr) {
 
 /**
  * 格式化分钟数为可读时长
- * @param {number} minutes
- * @returns {string} '1小时30分钟' | '45分钟'
+ * @returns '1小时30分钟' | '45分钟'
  */
-function formatDuration(minutes) {
+function formatDuration(minutes: number | null | undefined): string {
   if (!minutes || minutes <= 0) return '0 分钟';
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
@@ -53,9 +52,8 @@ function formatDuration(minutes) {
 
 /**
  * 格式化秒数为 mm:ss
- * @param {number} seconds
  */
-function formatTimer(seconds) {
+function formatTimer(seconds: number): string {
   const min = String(Math.floor(seconds / 60)).padStart(2, '0');
   const sec = String(seconds % 60).padStart(2, '0');
   return `${min}:${sec}`;
@@ -63,12 +61,11 @@ function formatTimer(seconds) {
 
 /**
  * 获取本周的日期范围 [周一, 周日]
- * @returns {{ start: string, end: string }}
  */
-function getWeekRange() {
+function getWeekRange(): { start: string; end: string } {
   const now = new Date();
   const dayOfWeek = now.getDay();
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 周日特殊处理
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
   const monday = new Date(now);
   monday.setDate(now.getDate() + mondayOffset);
@@ -81,7 +78,7 @@ function getWeekRange() {
   };
 }
 
-module.exports = {
+export {
   formatDate,
   formatDateShort,
   formatDateRelative,

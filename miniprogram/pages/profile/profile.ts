@@ -1,8 +1,28 @@
-// pages/profile/profile.js — 个人中心
-const app = getApp();
-const { query } = require('../../utils/db');
+// pages/profile/profile.ts — 个人中心
+import { query } from '../../utils/db';
+import { showError } from '../../utils/error';
 
-Page({
+interface ITotalStats {
+  workoutCount: number;
+  totalMinutes: number;
+  totalSets: number;
+}
+
+interface ICommonExercise {
+  name: string;
+  count: number;
+}
+
+interface IPageData {
+  userInfo: IUserInfo | null;
+  totalStats: ITotalStats;
+  commonExercises: ICommonExercise[];
+  loading: boolean;
+}
+
+const app = getApp<IAppOption>();
+
+Page<IPageData, {}>({
   data: {
     userInfo: null,
     totalStats: {
@@ -33,32 +53,26 @@ Page({
 
   async loadStats() {
     try {
-      // 查询总训练次数和时长
       const workoutRes = await query('workouts', {}, {
         orderBy: { field: 'created_at', direction: 'desc' },
-        limit: 100, // 最多统计最近 100 条
+        limit: 100,
       });
 
       if (workoutRes.success) {
-        const workouts = workoutRes.data;
+        const workouts: IWorkout[] = workoutRes.data;
         const totalMinutes = workouts.reduce(
           (sum, w) => sum + (w.duration_min || 0), 0
         );
 
-        // 查询总组数
         const setsRes = await query('sets', {}, { limit: 1000 });
         const totalSets = setsRes.success ? setsRes.data.length : 0;
 
         this.setData({
-          totalStats: {
-            workoutCount: workouts.length,
-            totalMinutes,
-            totalSets,
-          },
+          totalStats: { workoutCount: workouts.length, totalMinutes, totalSets },
         });
       }
     } catch (err) {
-      console.error('加载个人统计失败:', err);
+      showError('加载个人统计失败', err);
     }
   },
 
@@ -67,8 +81,7 @@ Page({
       const res = await query('sets', {}, { limit: 500 });
       if (!res.success) return;
 
-      // 统计每个动作的出现次数
-      const countMap = {};
+      const countMap: Record<string, number> = {};
       for (const set of res.data) {
         const name = set.exercise_name;
         if (name) {
@@ -76,35 +89,34 @@ Page({
         }
       }
 
-      // 取前 8 个最常用的动作
-      const sorted = Object.entries(countMap)
+      const sorted: ICommonExercise[] = Object.entries(countMap)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 8)
         .map(([name, count]) => ({ name, count }));
 
       this.setData({ commonExercises: sorted });
     } catch (err) {
-      console.error('加载常用动作失败:', err);
+      showError('加载常用动作失败', err);
     }
   },
 
+  // 使用缓存方式获取用户信息（wx.getUserProfile 已废弃）
   getUserProfile() {
-    wx.getUserProfile({
-      desc: '用于展示个人头像和昵称',
-      success: (res) => {
-        app.globalData.userInfo = res.userInfo;
-        wx.setStorageSync('userInfo', res.userInfo);
-        this.setData({ userInfo: res.userInfo });
-      },
-      fail: () => {
-        wx.showToast({ title: '获取用户信息失败', icon: 'none' });
-      },
+    wx.showModal({
+      title: '个人信息',
+      content: '请在微信「我」页面设置头像和昵称',
+      showCancel: false,
+      confirmText: '知道了',
     });
+    // 尝试从缓存加载
+    const cached = wx.getStorageSync('userInfo');
+    if (cached) {
+      app.globalData.userInfo = cached;
+      this.setData({ userInfo: cached });
+    }
   },
 
   manageExercises() {
-    wx.navigateTo({
-      url: '/pages/exercise-pick/index?mode=manage',
-    });
+    wx.navigateTo({ url: '/pages/exercise-pick/index?mode=manage' });
   },
 });

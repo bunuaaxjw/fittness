@@ -1,31 +1,41 @@
-// pages/exercise-pick/index.js — 选择动作页
-const app = getApp();
-const { getExercises } = require('../../utils/db');
+// pages/exercise-pick/index.ts — 选择动作页
+import { getExercises } from '../../utils/db';
+import { showError } from '../../utils/error';
 
-Page({
+interface IPageData {
+  mode: string;
+  exercises: IExercise[];
+  filteredExercises: IExercise[];
+  loading: boolean;
+  bodyParts: string[];
+  categories: string[];
+  activeBodyPart: string;
+  activeCategory: string;
+  searchKeyword: string;
+  selectedIds: string[];
+}
+
+const app = getApp<IAppOption>();
+
+Page<IPageData, {}>({
   data: {
-    mode: 'pick',           // pick = 选择动作 | manage = 管理动作
-    exercises: [],          // 全部动作（缓存）
-    filteredExercises: [],  // 筛选后的动作
+    mode: 'pick',
+    exercises: [],
+    filteredExercises: [],
     loading: true,
-
     bodyParts: ['全部', ...app.globalData.bodyParts],
     categories: ['全部', ...app.globalData.categories],
-
-    // 筛选条件
     activeBodyPart: '全部',
     activeCategory: '全部',
     searchKeyword: '',
-
-    // 管理模式
     selectedIds: [],
   },
 
-  onLoad(options) {
+  onLoad(options: Record<string, string | undefined>) {
     const { mode } = options;
     if (mode) {
       this.setData({ mode });
-      const titles = { manage: '管理动作' };
+      const titles: Record<string, string> = { manage: '管理动作' };
       wx.setNavigationBarTitle({ title: titles[mode] || '选择动作' });
     }
     this.loadExercises();
@@ -35,30 +45,28 @@ Page({
     this.setData({ loading: true });
     const res = await getExercises();
     if (res.success) {
-      this.setData({
-        exercises: res.data,
-        loading: false,
-      }, () => this.filterExercises());
+      this.setData({ exercises: res.data, loading: false }, () => this.filterExercises());
     } else {
       this.setData({ loading: false });
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      showError('加载失败');
     }
   },
 
   // ===== 筛选 =====
-  onBodyPartTap(e) {
+
+  onBodyPartTap(e: WechatMiniprogram.BaseEvent) {
     const { part } = e.currentTarget.dataset;
     if (part === this.data.activeBodyPart) return;
     this.setData({ activeBodyPart: part }, () => this.filterExercises());
   },
 
-  onCategoryTap(e) {
+  onCategoryTap(e: WechatMiniprogram.BaseEvent) {
     const { category } = e.currentTarget.dataset;
     if (category === this.data.activeCategory) return;
     this.setData({ activeCategory: category }, () => this.filterExercises());
   },
 
-  onSearchInput(e) {
+  onSearchInput(e: WechatMiniprogram.BaseEvent) {
     this.setData({ searchKeyword: e.detail.value }, () => this.filterExercises());
   },
 
@@ -81,12 +89,12 @@ Page({
   },
 
   // ===== 选择动作（pick 模式） =====
-  selectExercise(e) {
+
+  selectExercise(e: WechatMiniprogram.BaseEvent) {
     const { id } = e.currentTarget.dataset;
     const exercise = this.data.exercises.find((ex) => ex._id === id);
     if (!exercise) return;
 
-    // 传递结果给上一个页面
     const eventChannel = this.getOpenerEventChannel();
     if (eventChannel) {
       eventChannel.emit('selectExercise', { exercise });
@@ -95,7 +103,8 @@ Page({
   },
 
   // ===== 管理动作（manage 模式） =====
-  toggleSelect(e) {
+
+  toggleSelect(e: WechatMiniprogram.BaseEvent) {
     const { id } = e.currentTarget.dataset;
     const selectedIds = [...this.data.selectedIds];
     const idx = selectedIds.indexOf(id);
