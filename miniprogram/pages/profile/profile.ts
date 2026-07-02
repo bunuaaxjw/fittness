@@ -1,5 +1,6 @@
 // pages/profile/profile.ts — 个人中心
 import { showError } from '../../utils/error';
+import { query } from '../../utils/db';
 
 interface ITotalStats {
   workoutCount: number;
@@ -45,24 +46,76 @@ Page<IPageData, {}>({
       });
 
       if (res.result.success) {
-        const d = res.result.data;
+        this.setCloudStats(res.result.data);
+        return;
+      }
+    } catch {
+      // 云函数未部署，降级为客户端查询
+      console.warn('[profile] 云函数不可用，使用客户端查询');
+    }
+
+    await this.loadLocalStats();
+  },
+
+  /** 云函数返回的统计 */
+  setCloudStats(d: any) {
+    this.setData({
+      totalStats: {
+        workoutCount: d.workoutCount,
+        totalMinutes: d.totalMinutes,
+        totalSets: d.totalSets,
+        trainingDays: d.trainingDays,
+      },
+      statItems: [
+        { value: d.workoutCount, label: '次训练' },
+        { value: d.totalMinutes, label: '分钟' },
+        { value: d.totalSets, label: '组' },
+        { value: d.trainingDays, label: '天' },
+      ],
+      commonExercises: d.commonExercises,
+    });
+  },
+
+  /** 降级：客户端查询统计 */
+  async loadLocalStats() {
+    try {
+      const [workoutRes, setsRes] = await Promise.all([
+        query('workouts', {}, {
+          orderBy: { field: 'created_at', direction: 'desc' },
+          limit: 100,
+        }),
+        query('sets', {}, { limit: 1000 }),
+      ]);
+
+      if (workoutRes.success) {
+        const workouts: IWorkout[] = workoutRes.data;
+        const totalMinutes = workouts.reduce((sum, w) => sum + (w.duration_min || 0), 0);
+        const totalSets = setsRes.success ? setsRes.data.length : 0;
+        const uniqueDates = new Set(workouts.map((w) => w.date));
+
         this.setData({
-          totalStats: {
-            workoutCount: d.workoutCount,
-            totalMinutes: d.totalMinutes,
-            totalSets: d.totalSets,
-            trainingDays: d.trainingDays,
-          },
+          totalStats: { workoutCount: workouts.length, totalMinutes, totalSets, trainingDays: uniqueDates.size },
           statItems: [
-            { value: d.workoutCount, label: '次训练' },
-            { value: d.totalMinutes, label: '分钟' },
-            { value: d.totalSets, label: '组' },
-            { value: d.trainingDays, label: '天' },
+            { value: workouts.length, label: '次训练' },
+            { value: totalMinutes, label: '分钟' },
+            { value: totalSets, label: '组' },
+            { value: uniqueDates.size, label: '天' },
           ],
-          commonExercises: d.commonExercises,
         });
-      } else {
-        showError(res.result.error || '加载失败');
+      }
+
+      // 常用动作
+      if (setsRes.success) {
+        const countMap: Record<string, number> = {};
+        for (const set of setsRes.data) {
+          const name = set.exercise_name;
+          if (name) countMap[name] = (countMap[name] || 0) + 1;
+        }
+        const commonExercises = Object.entries(countMap)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([name, count]) => ({ name, count }));
+        this.setData({ commonExercises });
       }
     } catch (err) {
       showError('加载个人数据失败', err);
