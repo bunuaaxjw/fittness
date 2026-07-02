@@ -1,0 +1,48 @@
+<!-- components/exercise-card/index.wxml -->
+<view class="card exercise-card">
+  <!-- 动作标题行 -->
+  <view class="ex-header flex-between">
+    <view class="flex-row">
+      <text class="ex-name">{{name}}</text>
+      <text class="ex-part">{{bodyPart}}</text>
+    </view>
+    <text
+      wx:if="{{showRemove}}"
+      class="ex-remove"
+      bindtap="onRemoveExercise"
+    >✕</text>
+  </view>
+
+  <view class="divider"></view>
+
+  <!-- 组列表头 -->
+  <view class="set-header flex-row">
+    <text class="set-col set-col--num">组</text>
+    <text class="set-col set-col--weight">重量(kg)</text>
+    <text class="set-col set-col--reps">次数</text>
+    <text class="set-col set-col--notes">备注</text>
+    <text class="set-col set-col--action"></text>
+  </view>
+
+  <!-- 每组记录 -->
+  <set-row
+    wx:for="{{sets}}"
+    wx:key="index"
+    weight="{{item.weight_kg}}"
+    reps="{{item.reps}}"
+    notes="{{item.notes}}"
+    set-index="{{index}}"
+    ex-index="{{exerciseIndex}}"
+    current-sets-count="{{sets.length}}"
+    show-delete="{{showRemove}}"
+    bind:update="onSetUpdate"
+    bind:remove="onSetRemove"
+  />
+
+  <!-- 添加组按钮 -->
+  <button
+    wx:if="{{showRemove}}"
+    class="btn-outline btn-add-set"
+    bindtap="onAddSet"
+  >+ 添加组</button>
+</view>

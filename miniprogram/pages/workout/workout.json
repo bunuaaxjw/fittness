@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "exercise-card": "../../components/exercise-card/index"
+  },
   "navigationBarTitleText": "训练"
 }

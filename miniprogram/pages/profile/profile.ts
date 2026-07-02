@@ -17,6 +17,7 @@ interface ICommonExercise {
 interface IPageData {
   userInfo: IUserInfo | null;
   totalStats: ITotalStats;
+  statItems: Array<{ value: number; label: string }>;
   commonExercises: ICommonExercise[];
   loading: boolean;
 }
@@ -28,6 +29,7 @@ Page<IPageData, {}>({
     userInfo: null,
     totalStats: { workoutCount: 0, totalMinutes: 0, totalSets: 0, trainingDays: 0 },
     commonExercises: [],
+    statItems: [],
     loading: true,
   },
 
@@ -62,6 +64,12 @@ Page<IPageData, {}>({
             totalSets,
             trainingDays: uniqueDates.size,
           },
+          statItems: [
+            { value: workouts.length, label: '次训练' },
+            { value: totalMinutes, label: '分钟' },
+            { value: totalSets, label: '组' },
+            { value: uniqueDates.size, label: '天' },
+          ],
         });
       }
 

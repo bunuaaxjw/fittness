@@ -1,5 +1,11 @@
 <!-- pages/index/index.wxml — 首页 -->
 <view class="container">
+  <!-- 骨架屏 -->
+  <view wx:if="{{loading}}" class="skeleton">
+    <view class="skeleton-card"><view class="skeleton-line skeleton-line--long" /><view class="skeleton-line skeleton-line--short" /></view>
+    <view class="skeleton-card"><view class="skeleton-line skeleton-line--long" /><view class="skeleton-line" /><view class="skeleton-line" /></view>
+  </view>
+
   <!-- 今日状态卡片 -->
   <view class="card today-card">
     <view class="today-header flex-between">

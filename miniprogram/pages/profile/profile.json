@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "stat-summary": "../../components/stat-summary/index"
+  },
   "navigationBarTitleText": "我的"
 }

@@ -1,0 +1,23 @@
+/* components/stat-summary/index.wxss */
+.stats-row {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx 0;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #e94560;
+  padding: 8rpx 0;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #999;
+}

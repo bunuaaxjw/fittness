@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "set-row": "../set-row/index"
+  }
+}

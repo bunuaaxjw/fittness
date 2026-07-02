@@ -1,0 +1,33 @@
+<!-- components/set-row/index.wxml -->
+<view class="set-row flex-row">
+  <text class="set-col set-col--num">{{setIndex + 1}}</text>
+  <input
+    class="set-input"
+    type="digit"
+    placeholder="0"
+    value="{{weight}}"
+    data-field="weight_kg"
+    bindinput="onInput"
+  />
+  <input
+    class="set-input"
+    type="number"
+    placeholder="0"
+    value="{{reps}}"
+    data-field="reps"
+    bindinput="onInput"
+  />
+  <input
+    class="set-input set-input--notes"
+    type="text"
+    placeholder="备注"
+    value="{{notes}}"
+    data-field="notes"
+    bindinput="onInput"
+  />
+  <text
+    wx:if="{{showDelete}}"
+    class="set-col set-col--action set-del"
+    bindtap="onRemove"
+  >−</text>
+</view>

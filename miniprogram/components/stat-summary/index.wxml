@@ -1,0 +1,7 @@
+<!-- components/stat-summary/index.wxml -->
+<view class="stats-row">
+  <view class="stat-item" wx:for="{{items}}" wx:key="label">
+    <text class="stat-value">{{item.value}}</text>
+    <text class="stat-label">{{item.label}}</text>
+  </view>
+</view>

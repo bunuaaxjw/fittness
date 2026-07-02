@@ -20,24 +20,7 @@
   <!-- 累计数据 -->
   <view class="card stats-card">
     <text class="section-title">累计数据</text>
-    <view class="stats-row">
-      <view class="stat-item">
-        <text class="stat-value">{{totalStats.workoutCount}}</text>
-        <text class="stat-label">次训练</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-value">{{totalStats.totalMinutes}}</text>
-        <text class="stat-label">分钟</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-value">{{totalStats.totalSets}}</text>
-        <text class="stat-label">组</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-value">{{totalStats.trainingDays}}</text>
-        <text class="stat-label">天</text>
-      </view>
-    </view>
+    <stat-summary items="{{statItems}}" />
   </view>
 
   <!-- 常用动作 -->

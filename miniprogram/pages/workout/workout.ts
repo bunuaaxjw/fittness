@@ -97,8 +97,10 @@ Page<IPageData, {}>({
     this.setData({ selectedExercises });
   },
 
-  removeExercise(e: WechatMiniprogram.BaseEvent) {
-    const { index } = e.currentTarget.dataset;
+  // ===== 组件事件处理 =====
+
+  onRemoveExercise(e: any) {
+    const { index } = e.detail;
     const name = this.data.selectedExercises[index].exercise.name;
     wx.showModal({
       title: '移除动作',
@@ -113,16 +115,10 @@ Page<IPageData, {}>({
     });
   },
 
-  // ===== 组管理 =====
-
-  /**
-   * 添加组 — 自动填充上一组的重量和次数
-   */
-  addSet(e: WechatMiniprogram.BaseEvent) {
-    const { index } = e.currentTarget.dataset;
+  onAddSet(e: any) {
+    const { index } = e.detail;
     const selectedExercises = addSet(this.data.selectedExercises, index);
-
-    // 自动填充：复制上一组的 weight_kg 和 reps
+    // 自动填充上一组
     const sets = selectedExercises[index].sets;
     if (sets.length >= 2) {
       const prev = sets[sets.length - 2];
@@ -130,13 +126,12 @@ Page<IPageData, {}>({
       last.weight_kg = prev.weight_kg;
       last.reps = prev.reps;
     }
-
     this.setData({ selectedExercises });
   },
 
-  removeSet(e: WechatMiniprogram.BaseEvent) {
-    const { exIdx, setIdx } = e.currentTarget.dataset;
-    const result = removeSet(this.data.selectedExercises, exIdx, setIdx);
+  onSetRemove(e: any) {
+    const { exIndex, setIndex } = e.detail;
+    const result = removeSet(this.data.selectedExercises, exIndex, setIndex);
     if (!result) {
       wx.showToast({ title: '每个动作至少保留一组', icon: 'none' });
       return;
@@ -144,10 +139,9 @@ Page<IPageData, {}>({
     this.setData({ selectedExercises: result });
   },
 
-  updateSetValue(e: WechatMiniprogram.BaseEvent) {
-    const { exIdx, setIdx, field } = e.currentTarget.dataset;
-    const { value } = e.detail;
-    const { key, value: v } = buildSetUpdatePath('selectedExercises', exIdx, setIdx, field, value);
+  onSetUpdate(e: any) {
+    const { exIndex, setIndex, field, value } = e.detail;
+    const { key, value: v } = buildSetUpdatePath('selectedExercises', exIndex, setIndex, field, value);
     this.setData({ [key]: v });
   },
 

@@ -61,6 +61,14 @@ page {
   text-align: center;
 }
 
+.btn-primary--hover {
+  background-color: #d63850;
+}
+
+.btn-outline--hover {
+  background-color: #fef0f3;
+}
+
 /* ===== 文字层级 ===== */
 .text-primary {
   color: #333333;

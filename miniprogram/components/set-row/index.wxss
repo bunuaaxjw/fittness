@@ -1,0 +1,35 @@
+/* components/set-row/index.wxss */
+.set-row {
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.set-col--num {
+  width: 48rpx;
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+.set-input {
+  flex: 1;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 10rpx 12rpx;
+  font-size: 26rpx;
+  text-align: center;
+  min-width: 0;
+  margin: 0 6rpx;
+}
+
+.set-input--notes {
+  flex: 1.4;
+}
+
+.set-del {
+  width: 48rpx;
+  font-size: 32rpx;
+  color: #e94560;
+  text-align: center;
+  padding: 8rpx;
+}

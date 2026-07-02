@@ -1,0 +1,66 @@
+/* components/exercise-card/index.wxss */
+.exercise-card {
+  margin-bottom: 16rpx;
+  padding: 24rpx 28rpx;
+}
+
+.ex-header {
+  margin-bottom: 12rpx;
+}
+
+.ex-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.ex-part {
+  font-size: 22rpx;
+  color: #e94560;
+  background: #fce4e8;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  margin-left: 12rpx;
+}
+
+.ex-remove {
+  font-size: 28rpx;
+  color: #ccc;
+  padding: 8rpx 12rpx;
+}
+
+.divider {
+  height: 1rpx;
+  background: #f0f0f0;
+  margin-bottom: 12rpx;
+}
+
+.set-header {
+  padding: 8rpx 0;
+  margin-bottom: 4rpx;
+}
+
+.set-col {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.set-col--num { width: 48rpx; text-align: center; }
+.set-col--weight { flex: 1; text-align: center; }
+.set-col--reps { flex: 1; text-align: center; }
+.set-col--notes { flex: 1.4; text-align: center; }
+.set-col--action { width: 48rpx; text-align: center; }
+
+.btn-add-set {
+  width: 100%;
+  margin-top: 8rpx;
+  padding: 12rpx;
+  font-size: 24rpx;
+  border: 2rpx dashed #ddd;
+  color: #999;
+  text-align: center;
+  border-radius: 12rpx;
+  background: transparent;
+}
+
+.btn-add-set::after { border: none; }

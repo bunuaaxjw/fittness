@@ -1,5 +1,29 @@
 /* pages/index/index.wxss — 首页样式 */
 
+/* ===== 骨架屏 ===== */
+.skeleton-card {
+  padding: 28rpx;
+  margin: 0 0 16rpx;
+  background: #fff;
+  border-radius: 16rpx;
+}
+
+.skeleton-line {
+  height: 20rpx;
+  background: #eee;
+  border-radius: 8rpx;
+  margin-bottom: 16rpx;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line--long { width: 60%; }
+.skeleton-line--short { width: 30%; }
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 /* ===== 今日卡片 ===== */
 .today-card {
   padding: 28rpx;
