@@ -155,7 +155,6 @@ Page<IPageData, {}>({
       wx.navigateTo({ url: `/pages/workout-detail/index?id=${id}` });
     }
   },
-  },
 });
 
 // 本地使用的 formatDate（避免循环依赖）
