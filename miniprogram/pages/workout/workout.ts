@@ -1,6 +1,7 @@
 // pages/workout/workout.ts — 训练页
 import { formatDate } from '../../utils/format';
 import { showError, showSuccess } from '../../utils/error';
+import { addSet, removeSet, buildSetUpdatePath, buildSaveSets } from '../../utils/workout-helper';
 
 interface IPageData {
   isWorkoutActive: boolean;
@@ -66,7 +67,6 @@ Page<IPageData, {}>({
       exercise,
       sets: [{ weight_kg: '', reps: '', notes: '' }],
     });
-
     this.setData({ selectedExercises });
   },
 
@@ -86,35 +86,29 @@ Page<IPageData, {}>({
     });
   },
 
-  // ===== 组管理 =====
+  // ===== 组管理（共享工具函数） =====
 
   addSet(e: WechatMiniprogram.BaseEvent) {
-    const exerciseIndex = e.currentTarget.dataset.index;
-    const selectedExercises = [...this.data.selectedExercises];
-    selectedExercises[exerciseIndex].sets.push({
-      weight_kg: '',
-      reps: '',
-      notes: '',
-    });
+    const { index } = e.currentTarget.dataset;
+    const selectedExercises = addSet(this.data.selectedExercises, index);
     this.setData({ selectedExercises });
   },
 
   removeSet(e: WechatMiniprogram.BaseEvent) {
     const { exIdx, setIdx } = e.currentTarget.dataset;
-    const selectedExercises = [...this.data.selectedExercises];
-    if (selectedExercises[exIdx].sets.length <= 1) {
+    const result = removeSet(this.data.selectedExercises, exIdx, setIdx);
+    if (!result) {
       wx.showToast({ title: '每个动作至少保留一组', icon: 'none' });
       return;
     }
-    selectedExercises[exIdx].sets.splice(setIdx, 1);
-    this.setData({ selectedExercises });
+    this.setData({ selectedExercises: result });
   },
 
   updateSetValue(e: WechatMiniprogram.BaseEvent) {
     const { exIdx, setIdx, field } = e.currentTarget.dataset;
     const { value } = e.detail;
-    const key = `selectedExercises[${exIdx}].sets[${setIdx}].${field}`;
-    this.setData({ [key]: value });
+    const { key, value: v } = buildSetUpdatePath('selectedExercises', exIdx, setIdx, field, value);
+    this.setData({ [key]: v });
   },
 
   // ===== 完成训练 =====
@@ -140,29 +134,13 @@ Page<IPageData, {}>({
 
     const durationMin = Math.round(this.data.elapsedSeconds / 60);
 
-    // 构建 sets 数据
-    const sets: Array<{
-      exercise_id: string;
-      exercise_name: string;
-      weight_kg: number;
-      reps: number;
-      notes: string;
-      sort_order: number;
-    }> = [];
-    let setOrder = 0;
-    for (const item of this.data.selectedExercises) {
-      for (const set of item.sets) {
-        if (!set.weight_kg && !set.reps) continue;
-        sets.push({
-          exercise_id: item.exercise._id,
-          exercise_name: item.exercise.name,
-          weight_kg: parseFloat(String(set.weight_kg)) || 0,
-          reps: parseInt(String(set.reps)) || 0,
-          notes: set.notes || '',
-          sort_order: setOrder++,
-        });
-      }
-    }
+    // 将 ISelectedExercise 展平供 buildSaveSets 使用
+    const flatExercises = this.data.selectedExercises.map((item) => ({
+      exercise_id: item.exercise._id,
+      exercise_name: item.exercise.name,
+      sets: item.sets,
+    }));
+    const sets = buildSaveSets(flatExercises);
 
     try {
       const res: ICloudFunctionResult = await wx.cloud.callFunction({

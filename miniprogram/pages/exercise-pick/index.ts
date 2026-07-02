@@ -1,6 +1,7 @@
 // pages/exercise-pick/index.ts — 选择动作页
 import { getExercises } from '../../utils/db';
 import { showError } from '../../utils/error';
+import { BODY_PARTS_WITH_ALL, CATEGORIES_WITH_ALL } from '../../utils/constants';
 
 interface IPageData {
   mode: string;
@@ -15,16 +16,14 @@ interface IPageData {
   selectedIds: string[];
 }
 
-const app = getApp<IAppOption>();
-
 Page<IPageData, {}>({
   data: {
     mode: 'pick',
     exercises: [],
     filteredExercises: [],
     loading: true,
-    bodyParts: ['全部', ...app.globalData.bodyParts],
-    categories: ['全部', ...app.globalData.categories],
+    bodyParts: BODY_PARTS_WITH_ALL,
+    categories: CATEGORIES_WITH_ALL,
     activeBodyPart: '全部',
     activeCategory: '全部',
     searchKeyword: '',

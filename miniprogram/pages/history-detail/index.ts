@@ -2,6 +2,7 @@
 import { getById, getSetsByWorkout } from '../../utils/db';
 import { formatDuration } from '../../utils/format';
 import { showError } from '../../utils/error';
+import { groupSetsByExercise } from '../../utils/workout-helper';
 
 interface IPageData {
   workoutId: string | null;
@@ -51,24 +52,9 @@ Page<IPageData, {}>({
       const workout: IWorkout = workoutRes.data;
       const sets: ISetRecord[] = setsRes.success ? setsRes.data : [];
 
-      // 按 exercise_id 分组
-      const exerciseMap = new Map<string, IExerciseWithSets>();
-      for (const set of sets) {
-        const key = set.exercise_id || set.exercise_name;
-        if (!exerciseMap.has(key)) {
-          exerciseMap.set(key, {
-            exercise_id: set.exercise_id,
-            exercise_name: set.exercise_name,
-            icon: '',
-            sets: [],
-          });
-        }
-        exerciseMap.get(key)!.sets.push(set);
-      }
-
       this.setData({
         workout,
-        exercises: Array.from(exerciseMap.values()),
+        exercises: groupSetsByExercise(sets),
         durationText: formatDuration(workout.duration_min || 0),
         loading: false,
       });

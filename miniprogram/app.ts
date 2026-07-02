@@ -1,4 +1,5 @@
 // app.ts — 健身小程序入口
+import { BODY_PARTS, CATEGORIES } from './utils/constants';
 
 App<IAppOption>({
   onLaunch() {
@@ -24,7 +25,7 @@ App<IAppOption>({
 
   globalData: {
     userInfo: null,
-    bodyParts: ['胸', '背', '腿', '肩', '手臂', '核心', '全身'],
-    categories: ['自由重量', '器械', '自重', '有氧'],
+    bodyParts: BODY_PARTS,
+    categories: CATEGORIES,
   },
 });

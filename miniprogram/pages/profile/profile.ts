@@ -25,11 +25,7 @@ const app = getApp<IAppOption>();
 Page<IPageData, {}>({
   data: {
     userInfo: null,
-    totalStats: {
-      workoutCount: 0,
-      totalMinutes: 0,
-      totalSets: 0,
-    },
+    totalStats: { workoutCount: 0, totalMinutes: 0, totalSets: 0 },
     commonExercises: [],
     loading: true,
   },
@@ -42,65 +38,47 @@ Page<IPageData, {}>({
   async loadAll() {
     this.setData({ loading: true });
     try {
-      await Promise.all([
-        this.loadStats(),
-        this.loadCommonExercises(),
+      // 并行查询 workouts 和 sets，各只查一次
+      const [workoutRes, setsRes] = await Promise.all([
+        query('workouts', {}, {
+          orderBy: { field: 'created_at', direction: 'desc' },
+          limit: 100,
+        }),
+        query('sets', {}, { limit: 1000 }),
       ]);
+
+      // 统计计算
+      if (workoutRes.success) {
+        const workouts: IWorkout[] = workoutRes.data;
+        const totalMinutes = workouts.reduce((sum, w) => sum + (w.duration_min || 0), 0);
+        const totalSets = setsRes.success ? setsRes.data.length : 0;
+        this.setData({
+          totalStats: { workoutCount: workouts.length, totalMinutes, totalSets },
+        });
+      }
+
+      // 常用动作（复用同一次 sets 查询结果）
+      if (setsRes.success) {
+        const countMap: Record<string, number> = {};
+        for (const set of setsRes.data) {
+          const name = set.exercise_name;
+          if (name) countMap[name] = (countMap[name] || 0) + 1;
+        }
+
+        const sorted: ICommonExercise[] = Object.entries(countMap)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([name, count]) => ({ name, count }));
+
+        this.setData({ commonExercises: sorted });
+      }
+    } catch (err) {
+      showError('加载个人数据失败', err);
     } finally {
       this.setData({ loading: false });
     }
   },
 
-  async loadStats() {
-    try {
-      const workoutRes = await query('workouts', {}, {
-        orderBy: { field: 'created_at', direction: 'desc' },
-        limit: 100,
-      });
-
-      if (workoutRes.success) {
-        const workouts: IWorkout[] = workoutRes.data;
-        const totalMinutes = workouts.reduce(
-          (sum, w) => sum + (w.duration_min || 0), 0
-        );
-
-        const setsRes = await query('sets', {}, { limit: 1000 });
-        const totalSets = setsRes.success ? setsRes.data.length : 0;
-
-        this.setData({
-          totalStats: { workoutCount: workouts.length, totalMinutes, totalSets },
-        });
-      }
-    } catch (err) {
-      showError('加载个人统计失败', err);
-    }
-  },
-
-  async loadCommonExercises() {
-    try {
-      const res = await query('sets', {}, { limit: 500 });
-      if (!res.success) return;
-
-      const countMap: Record<string, number> = {};
-      for (const set of res.data) {
-        const name = set.exercise_name;
-        if (name) {
-          countMap[name] = (countMap[name] || 0) + 1;
-        }
-      }
-
-      const sorted: ICommonExercise[] = Object.entries(countMap)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 8)
-        .map(([name, count]) => ({ name, count }));
-
-      this.setData({ commonExercises: sorted });
-    } catch (err) {
-      showError('加载常用动作失败', err);
-    }
-  },
-
-  // 使用缓存方式获取用户信息（wx.getUserProfile 已废弃）
   getUserProfile() {
     wx.showModal({
       title: '个人信息',
@@ -108,7 +86,6 @@ Page<IPageData, {}>({
       showCancel: false,
       confirmText: '知道了',
     });
-    // 尝试从缓存加载
     const cached = wx.getStorageSync('userInfo');
     if (cached) {
       app.globalData.userInfo = cached;

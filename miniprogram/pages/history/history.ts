@@ -2,6 +2,7 @@
 import { getWorkouts } from '../../utils/db';
 import { formatDateRelative, formatDuration } from '../../utils/format';
 import { showError } from '../../utils/error';
+import { PAGE_SIZE } from '../../utils/constants';
 
 interface IPageData {
   groupedWorkouts: IGroupedWorkout[];
@@ -17,7 +18,7 @@ Page<IPageData, {}>({
     groupedWorkouts: [],
     loading: false,
     hasMore: true,
-    pageSize: 20,
+    pageSize: PAGE_SIZE,
     currentPage: 0,
     isEmpty: false,
   },

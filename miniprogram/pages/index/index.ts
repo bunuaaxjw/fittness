@@ -2,6 +2,7 @@
 import { getWorkouts, getWorkoutsByDate, query, _ } from '../../utils/db';
 import { formatDateRelative, formatDuration, getWeekRange } from '../../utils/format';
 import { showError } from '../../utils/error';
+import { MAX_RECENT_WORKOUTS } from '../../utils/constants';
 
 interface IRecentWorkout extends IWorkout {
   dateText: string;
@@ -39,7 +40,7 @@ Page<IPageData, {}>({
     try {
       const [todayRes, recentRes, weekRes] = await Promise.all([
         getWorkoutsByDate(today),
-        getWorkouts(0, 3),
+        getWorkouts(0, MAX_RECENT_WORKOUTS),
         this.queryWeekStats(),
       ]);
 
