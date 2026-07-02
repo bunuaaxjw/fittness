@@ -209,7 +209,7 @@ Page<IPageData, {}>({
 
           wx.hideLoading();
           showSuccess('已删除');
-          // 重新加载列表
+          wx.removeStorageSync('index_cache');
           this.loadWorkouts(true);
         } catch (err) {
           wx.hideLoading();

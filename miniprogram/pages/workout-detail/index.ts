@@ -149,6 +149,7 @@ Page<IPageData, {}>({
     wx.hideLoading();
     if (success) {
       showSuccess('已保存');
+      wx.removeStorageSync('index_cache');
       this.setData({ isEdit: false, saving: false });
       wx.setNavigationBarTitle({ title: '训练详情' });
     } else {

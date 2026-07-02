@@ -179,6 +179,7 @@ Page<IPageData, {}>({
   resetWorkout() {
     this.stopTimer(); this._startTime = null;
     this.setData({ isWorkoutActive: false, selectedExercises: [], elapsedSeconds: 0, timerText: '00:00' });
+    wx.removeStorageSync('index_cache'); // 清除首页缓存
   },
 
   // ===== 计时器 =====
