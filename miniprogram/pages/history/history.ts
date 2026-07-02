@@ -1,5 +1,5 @@
 // pages/history/history.ts — 记录页
-import { getWorkouts, query, remove, _ } from '../../utils/db';
+import { getWorkouts, getWorkoutsCursor, query, remove, _ } from '../../utils/db';
 import { formatDateRelative, formatDuration } from '../../utils/format';
 import { showError, showSuccess } from '../../utils/error';
 import { PAGE_SIZE } from '../../utils/constants';
@@ -15,7 +15,7 @@ interface IPageData {
   loading: boolean;
   hasMore: boolean;
   pageSize: number;
-  currentPage: number;
+  lastId: string;  // 游标分页
   isEmpty: boolean;
   searchKeyword: string;
 }
@@ -26,7 +26,7 @@ Page<IPageData, {}>({
     loading: false,
     hasMore: true,
     pageSize: PAGE_SIZE,
-    currentPage: 0,
+    lastId: '',
     isEmpty: false,
     searchKeyword: '',
   },
@@ -55,13 +55,14 @@ Page<IPageData, {}>({
 
   async loadWorkouts(refresh: boolean) {
     if (refresh) {
-      this.setData({ currentPage: 0, groupedWorkouts: [], hasMore: true, isEmpty: false });
+      this.setData({ lastId: '', groupedWorkouts: [], hasMore: true, isEmpty: false });
     }
 
     this.setData({ loading: true });
 
     try {
-      const res = await getWorkouts(this.data.currentPage, this.data.pageSize);
+      const lastId = refresh ? undefined : this.data.lastId || undefined;
+      const res = await getWorkoutsCursor(lastId, this.data.pageSize);
 
       if (!res.success) {
         showError('加载失败');
@@ -94,9 +95,11 @@ Page<IPageData, {}>({
         ? grouped
         : this.mergeGroups(this.data.groupedWorkouts, grouped);
 
+      const newLastId = workouts.length > 0 ? workouts[workouts.length - 1]._id : '';
+
       this.setData({
         groupedWorkouts,
-        currentPage: this.data.currentPage + 1,
+        lastId: newLastId,
       });
     } catch (err) {
       showError('加载训练记录失败', err);

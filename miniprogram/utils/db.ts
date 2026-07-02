@@ -128,6 +128,20 @@ async function getWorkouts(page = 0, pageSize = 20): Promise<IDbResult> {
   });
 }
 
+/**
+ * 游标分页查询训练记录（_id 降序，避免 offset 分页的重复/遗漏问题）
+ */
+async function getWorkoutsCursor(lastId?: string, pageSize = 20): Promise<IDbResult> {
+  const where: Record<string, any> = {};
+  if (lastId) {
+    where._id = _.lt(lastId);
+  }
+  return query(COLLECTIONS.WORKOUTS, where, {
+    orderBy: { field: '_id', direction: 'desc' },
+    limit: pageSize,
+  });
+}
+
 async function getWorkoutsByDate(date: string): Promise<IDbResult> {
   return query(COLLECTIONS.WORKOUTS, { date });
 }
@@ -148,6 +162,7 @@ export {
   remove,
   getExercises,
   getWorkouts,
+  getWorkoutsCursor,
   getWorkoutsByDate,
   getSetsByWorkout,
 };

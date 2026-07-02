@@ -30,14 +30,22 @@ Page<IPageData, {}>({
   },
 
   onShow() {
-    this.loadAll();
+    // 5 分钟内使用缓存
+    const CACHE_KEY = 'index_cache';
+    const CACHE_TTL = 5 * 60 * 1000;
+    const cached = wx.getStorageSync(CACHE_KEY);
+    if (cached && cached.time && Date.now() - cached.time < CACHE_TTL) {
+      this.setData({ ...cached.data, loading: false });
+      return;
+    }
+    this.loadAll(CACHE_KEY);
   },
 
   onPullDownRefresh() {
-    this.loadAll().then(() => wx.stopPullDownRefresh());
+    this.loadAll('index_cache').then(() => wx.stopPullDownRefresh());
   },
 
-  async loadAll() {
+  async loadAll(cacheKey?: string) {
     this.setData({ loading: true });
     const today = formatDate();
 
@@ -86,6 +94,20 @@ Page<IPageData, {}>({
       }
 
       this.setData({ weeklyStats: weekRes });
+
+      // 缓存数据（5 分钟有效）
+      if (cacheKey) {
+        wx.setStorageSync(cacheKey, {
+          time: Date.now(),
+          data: {
+            todayStatus: this.data.todayStatus,
+            todayWorkout: this.data.todayWorkout,
+            todayExercises: this.data.todayExercises,
+            recentWorkouts: this.data.recentWorkouts,
+            weeklyStats: this.data.weeklyStats,
+          },
+        });
+      }
     } catch (err) {
       showError('首页数据加载失败', err);
     } finally {
