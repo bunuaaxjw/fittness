@@ -7,6 +7,7 @@ interface IPageData {
   mode: string;
   exercises: IExercise[];
   filteredExercises: IExercise[];
+  recentExercises: IExercise[];  // 最近使用的动作（优先显示）
   loading: boolean;
   bodyParts: string[];
   categories: string[];
@@ -14,6 +15,7 @@ interface IPageData {
   activeCategory: string;
   searchKeyword: string;
   selectedIds: string[];
+  recentIds: string[];
 }
 
 Page<IPageData, {}>({
@@ -21,6 +23,7 @@ Page<IPageData, {}>({
     mode: 'pick',
     exercises: [],
     filteredExercises: [],
+    recentExercises: [],
     loading: true,
     bodyParts: BODY_PARTS_WITH_ALL,
     categories: CATEGORIES_WITH_ALL,
@@ -28,14 +31,19 @@ Page<IPageData, {}>({
     activeCategory: '全部',
     searchKeyword: '',
     selectedIds: [],
+    recentIds: [],
   },
 
   onLoad(options: Record<string, string | undefined>) {
-    const { mode } = options;
+    const { mode, recentIds } = options;
     if (mode) {
       this.setData({ mode });
       const titles: Record<string, string> = { manage: '管理动作' };
       wx.setNavigationBarTitle({ title: titles[mode] || '选择动作' });
+    }
+    // 解析最近使用的动作 ID
+    if (recentIds) {
+      this.setData({ recentIds: recentIds.split(',').filter(Boolean) });
     }
     this.loadExercises();
   },
@@ -70,7 +78,7 @@ Page<IPageData, {}>({
   },
 
   filterExercises() {
-    const { exercises, activeBodyPart, activeCategory, searchKeyword } = this.data;
+    const { exercises, activeBodyPart, activeCategory, searchKeyword, recentIds } = this.data;
     let filtered = [...exercises];
 
     if (activeBodyPart !== '全部') {
@@ -84,7 +92,15 @@ Page<IPageData, {}>({
       filtered = filtered.filter((e) => e.name.toLowerCase().includes(kw));
     }
 
-    this.setData({ filteredExercises: filtered });
+    // 将最近使用的动作排在前面（仅在 pick 模式且未搜索时）
+    if (this.data.mode === 'pick' && !searchKeyword && recentIds.length > 0) {
+      const recentSet = new Set(recentIds);
+      const recentExercises = filtered.filter((e) => recentSet.has(e._id));
+      const restExercises = filtered.filter((e) => !recentSet.has(e._id));
+      this.setData({ recentExercises, filteredExercises: restExercises });
+    } else {
+      this.setData({ recentExercises: [], filteredExercises: filtered });
+    }
   },
 
   // ===== 选择动作（pick 模式） =====

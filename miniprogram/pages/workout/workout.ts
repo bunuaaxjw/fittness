@@ -2,6 +2,7 @@
 import { formatDate } from '../../utils/format';
 import { showError, showSuccess } from '../../utils/error';
 import { addSet, removeSet, buildSetUpdatePath, buildSaveSets } from '../../utils/workout-helper';
+import { query } from '../../utils/db';
 
 interface IPageData {
   isWorkoutActive: boolean;
@@ -40,9 +41,35 @@ Page<IPageData, {}>({
     this.startTimer();
   },
 
-  openExercisePicker() {
+  /**
+   * 打开动作选择页，传递最近使用的动作 ID 用于排序
+   */
+  async openExercisePicker() {
+    // 查询最近使用的动作 ID（最近 5 次训练）
+    let recentIds: string[] = [];
+    try {
+      const setsRes = await query('sets', {}, {
+        orderBy: { field: 'sort_order', direction: 'asc' },
+        limit: 200,
+      });
+      if (setsRes.success) {
+        // 按出现顺序去重，取最近的 10 个不同动作
+        const seen = new Set<string>();
+        for (const s of setsRes.data.reverse()) {
+          if (s.exercise_id && !seen.has(s.exercise_id)) {
+            seen.add(s.exercise_id);
+            recentIds.push(s.exercise_id);
+          }
+          if (recentIds.length >= 10) break;
+        }
+      }
+    } catch {
+      // 获取失败不阻塞
+    }
+
+    const recentParam = recentIds.length > 0 ? `&recentIds=${recentIds.join(',')}` : '';
     wx.navigateTo({
-      url: '/pages/exercise-pick/index?mode=pick',
+      url: `/pages/exercise-pick/index?mode=pick${recentParam}`,
       events: {
         selectExercise: (data: { exercise: IExercise }) => {
           this.addExercise(data.exercise);
@@ -86,11 +113,24 @@ Page<IPageData, {}>({
     });
   },
 
-  // ===== 组管理（共享工具函数） =====
+  // ===== 组管理 =====
 
+  /**
+   * 添加组 — 自动填充上一组的重量和次数
+   */
   addSet(e: WechatMiniprogram.BaseEvent) {
     const { index } = e.currentTarget.dataset;
     const selectedExercises = addSet(this.data.selectedExercises, index);
+
+    // 自动填充：复制上一组的 weight_kg 和 reps
+    const sets = selectedExercises[index].sets;
+    if (sets.length >= 2) {
+      const prev = sets[sets.length - 2];
+      const last = sets[sets.length - 1];
+      last.weight_kg = prev.weight_kg;
+      last.reps = prev.reps;
+    }
+
     this.setData({ selectedExercises });
   },
 
@@ -134,7 +174,6 @@ Page<IPageData, {}>({
 
     const durationMin = Math.round(this.data.elapsedSeconds / 60);
 
-    // 将 ISelectedExercise 展平供 buildSaveSets 使用
     const flatExercises = this.data.selectedExercises.map((item) => ({
       exercise_id: item.exercise._id,
       exercise_name: item.exercise.name,
@@ -156,7 +195,8 @@ Page<IPageData, {}>({
 
       wx.hideLoading();
       if (res.result.success) {
-        showSuccess('训练已保存！');
+        // 显示训练完成摘要
+        this.showWorkoutSummary(durationMin);
         this.resetWorkout();
       } else {
         showError(res.result.error || '保存失败，请重试');
@@ -167,6 +207,26 @@ Page<IPageData, {}>({
     } finally {
       this.setData({ saving: false });
     }
+  },
+
+  /**
+   * 训练完成摘要弹窗
+   */
+  showWorkoutSummary(durationMin: number) {
+    const exerciseCount = this.data.selectedExercises.length;
+    const totalSets = this.data.selectedExercises.reduce(
+      (sum, ex) => sum + ex.sets.filter((s) => s.weight_kg || s.reps).length, 0
+    );
+    const exerciseNames = this.data.selectedExercises
+      .map((ex) => ex.exercise.name)
+      .join('、');
+
+    wx.showModal({
+      title: '💪 训练完成！',
+      content: `${exerciseCount} 个动作 · ${totalSets} 组 · ${durationMin} 分钟\n\n${exerciseNames}`,
+      showCancel: false,
+      confirmText: '好的',
+    });
   },
 
   resetWorkout() {

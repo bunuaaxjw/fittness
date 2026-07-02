@@ -6,6 +6,7 @@ interface ITotalStats {
   workoutCount: number;
   totalMinutes: number;
   totalSets: number;
+  trainingDays: number;  // 训练天数（按日期去重）
 }
 
 interface ICommonExercise {
@@ -25,7 +26,7 @@ const app = getApp<IAppOption>();
 Page<IPageData, {}>({
   data: {
     userInfo: null,
-    totalStats: { workoutCount: 0, totalMinutes: 0, totalSets: 0 },
+    totalStats: { workoutCount: 0, totalMinutes: 0, totalSets: 0, trainingDays: 0 },
     commonExercises: [],
     loading: true,
   },
@@ -52,8 +53,15 @@ Page<IPageData, {}>({
         const workouts: IWorkout[] = workoutRes.data;
         const totalMinutes = workouts.reduce((sum, w) => sum + (w.duration_min || 0), 0);
         const totalSets = setsRes.success ? setsRes.data.length : 0;
+        // 训练天数：按日期去重
+        const uniqueDates = new Set(workouts.map((w) => w.date));
         this.setData({
-          totalStats: { workoutCount: workouts.length, totalMinutes, totalSets },
+          totalStats: {
+            workoutCount: workouts.length,
+            totalMinutes,
+            totalSets,
+            trainingDays: uniqueDates.size,
+          },
         });
       }
 
@@ -95,5 +103,16 @@ Page<IPageData, {}>({
 
   manageExercises() {
     wx.navigateTo({ url: '/pages/exercise-pick/index?mode=manage' });
+  },
+
+  /**
+   * 点击常用动作 → 跳转记录页并筛选
+   */
+  viewExerciseHistory(e: WechatMiniprogram.BaseEvent) {
+    const { name } = e.currentTarget.dataset;
+    if (!name) return;
+    // 跳转到记录页（tabBar），通过全局数据传递筛选参数
+    app.globalData._historyFilter = name;
+    wx.switchTab({ url: '/pages/history/history' });
   },
 });

@@ -114,6 +114,18 @@
   color: #e8455b;
 }
 
+/* 最近使用 */
+.recent-label {
+  padding: 16rpx 28rpx 8rpx;
+  font-size: 24rpx;
+  color: #e94560;
+  font-weight: 600;
+}
+
+.exercise-item--recent {
+  border-left: 4rpx solid #e94560;
+}
+
 /* 空结果 */
 .empty {
   text-align: center;

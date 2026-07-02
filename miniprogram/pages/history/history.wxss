@@ -1,5 +1,19 @@
 /* pages/history/history.wxss — 记录页样式 */
 
+/* ===== 搜索栏 ===== */
+.search-bar {
+  margin: 10rpx 0 10rpx;
+}
+
+.search-bar input {
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 16rpx 24rpx;
+  font-size: 26rpx;
+  box-sizing: border-box;
+}
+
 /* ===== 空状态 ===== */
 .empty-card {
   padding: 100rpx 24rpx;
@@ -58,15 +72,37 @@
   color: #e94560;
 }
 
-.history-date {
-  font-size: 24rpx;
+.history-meta {
+  font-size: 22rpx;
   color: #999;
   margin-top: 4rpx;
+}
+
+.history-exercises {
+  font-size: 22rpx;
+  color: #aaa;
+  margin-top: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 360rpx;
+}
+
+.history-right {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
 }
 
 .history-arrow {
   font-size: 36rpx;
   color: #ccc;
+}
+
+.history-delete {
+  font-size: 28rpx;
+  color: #ccc;
+  padding: 12rpx;
 }
 
 /* ===== 加载更��� ===== */

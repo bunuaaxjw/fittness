@@ -33,6 +33,10 @@
         <text class="stat-value">{{totalStats.totalSets}}</text>
         <text class="stat-label">组</text>
       </view>
+      <view class="stat-item">
+        <text class="stat-value">{{totalStats.trainingDays}}</text>
+        <text class="stat-label">天</text>
+      </view>
     </view>
   </view>
 
@@ -45,14 +49,20 @@
     <view wx:if="{{commonExercises.length === 0}}" class="empty-hint">
       完成训练后这里会出现常用动作
     </view>
-    <view wx:for="{{commonExercises}}" wx:key="name" class="common-item flex-between">
+    <view
+      wx:for="{{commonExercises}}"
+      wx:key="name"
+      class="common-item flex-between"
+      bindtap="viewExerciseHistory"
+      data-name="{{item.name}}"
+    >
       <text class="common-name">{{item.name}}</text>
-      <text class="common-count">{{item.count}} 组</text>
+      <text class="common-count">{{item.count}} 组 ›</text>
     </view>
   </view>
 
   <!-- 版本 -->
   <view class="version-text">
-    <text>健身记录 v0.1.0</text>
+    <text>健身记录 v0.2.0</text>
   </view>
 </view>

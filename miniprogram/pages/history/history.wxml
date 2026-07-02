@@ -1,17 +1,26 @@
 <!-- pages/history/history.wxml — 记录页 -->
 <view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input
+      placeholder="搜索动作名称..."
+      value="{{searchKeyword}}"
+      bindinput="onSearchInput"
+    />
+  </view>
+
   <!-- 空状态 -->
   <view wx:if="{{isEmpty && !loading}}" class="card empty-card">
     <text class="empty-icon">📋</text>
-    <text class="empty-text">还没有训练记录</text>
-    <text class="empty-desc">完成一次训练后就会出现在这里</text>
+    <text class="empty-text">{{searchKeyword ? '没有匹配的训练记录' : '还没有训练记录'}}</text>
+    <text class="empty-desc" wx:if="{{!searchKeyword}}">完成一次训练后就会出现在这里</text>
   </view>
 
   <!-- 按日期分组的记录列表 -->
   <block wx:for="{{groupedWorkouts}}" wx:key="date">
     <!-- 日期标题 -->
     <view class="date-header flex-between">
-      <text class="date-title">{{item.dateText}}</text>
+      <text class="date-title">{{item.dateLabel}}</text>
       <text class="date-count">{{item.workouts.length}} 次训练</text>
     </view>
 
@@ -27,9 +36,17 @@
       <view class="flex-between">
         <view class="history-main">
           <text class="history-duration">{{workout.durationText}}</text>
-          <text class="history-date">{{workout.date}}</text>
+          <text class="history-meta">{{workout.setCount}} 组 · {{workout.date}}</text>
+          <text wx:if="{{workout.exerciseNames}}" class="history-exercises">{{workout.exerciseNames}}</text>
         </view>
-        <text class="history-arrow">›</text>
+        <view class="history-right">
+          <text class="history-arrow">›</text>
+          <text
+            class="history-delete"
+            catchtap="deleteWorkout"
+            data-id="{{workout._id}}"
+          >✕</text>
+        </view>
       </view>
     </view>
   </block>

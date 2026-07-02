@@ -111,6 +111,7 @@ interface IAppOption {
     userInfo: IUserInfo | null;
     bodyParts: BodyPart[];
     categories: ExerciseCategory[];
+    _historyFilter?: string;  // 记录页筛选关键词（跨页面传递）
   };
   loadUserInfo(): void;
 }
