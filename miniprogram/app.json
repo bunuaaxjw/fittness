@@ -23,19 +23,27 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页"
+        "text": "首页",
+        "iconPath": "images/tabbar/home.png",
+        "selectedIconPath": "images/tabbar/home-active.png"
       },
       {
         "pagePath": "pages/workout/workout",
-        "text": "训练"
+        "text": "训练",
+        "iconPath": "images/tabbar/workout.png",
+        "selectedIconPath": "images/tabbar/workout-active.png"
       },
       {
         "pagePath": "pages/history/history",
-        "text": "记录"
+        "text": "记录",
+        "iconPath": "images/tabbar/history.png",
+        "selectedIconPath": "images/tabbar/history-active.png"
       },
       {
         "pagePath": "pages/profile/profile",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "images/tabbar/profile.png",
+        "selectedIconPath": "images/tabbar/profile-active.png"
       }
     ]
   },
