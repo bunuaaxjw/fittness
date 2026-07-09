@@ -49,33 +49,28 @@
   min-height: auto;
 }
 
-/* 完成按钮 */
-.set-toggle-box {
-  width: 56rpx;
-  height: 56rpx;
-  border: 2rpx solid #ddd;
-  border-radius: 8rpx;
-  display: flex;
+/* 完成状态 — 方形框变绿 */
+.set-square--done {
+  background: #d5f5e3;
+}
+
+.set-square--toggle {
   align-items: center;
-  justify-content: center;
-  margin: 0 6rpx;
-  flex-shrink: 0;
-  box-sizing: border-box;
 }
 
-.set-toggle-box--done {
+.set-square--done.set-square--toggle {
   background: #27ae60;
-  border-color: #27ae60;
 }
 
+/* 完成按钮文字 */
 .set-toggle-empty {
-  font-size: 28rpx;
+  font-size: 36rpx;
   color: #ccc;
   line-height: 1;
 }
 
 .set-toggle-check {
-  font-size: 28rpx;
+  font-size: 36rpx;
   color: #fff;
   font-weight: 700;
   line-height: 1;

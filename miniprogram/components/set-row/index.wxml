@@ -3,19 +3,19 @@
   <text class="set-col--num">{{setIndex + 1}}</text>
 
   <!-- 重量方形框 -->
-  <view class="set-square">
+  <view class="set-square {{completed ? 'set-square--done' : ''}}">
     <text class="set-square-label">KG</text>
     <input class="set-square-input" type="digit" placeholder="0" value="{{weight}}" data-field="weight_kg" bindinput="onInput"/>
   </view>
 
   <!-- 次数方形框 -->
-  <view class="set-square">
+  <view class="set-square {{completed ? 'set-square--done' : ''}}">
     <text class="set-square-label">次</text>
     <input class="set-square-input" type="number" placeholder="0" value="{{reps}}" data-field="reps" bindinput="onInput"/>
   </view>
 
-  <!-- 完成按钮（空心 ○ / 绿底白 ✓） -->
-  <view class="set-toggle-box {{completed ? 'set-toggle-box--done' : ''}}" bindtap="onToggleComplete">
+  <!-- 完成按钮（和方形框同大小） -->
+  <view class="set-square set-square--toggle {{completed ? 'set-square--done' : ''}}" bindtap="onToggleComplete">
     <text wx:if="{{!completed}}" class="set-toggle-empty">○</text>
     <text wx:else class="set-toggle-check">✓</text>
   </view>
