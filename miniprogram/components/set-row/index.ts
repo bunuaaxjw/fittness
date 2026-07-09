@@ -8,10 +8,13 @@ Component({
     completed: { type: Boolean, value: false },
     setIndex: { type: Number, value: 0 },
     exIndex: { type: Number, value: 0 },
-    showDelete: { type: Boolean, value: true },
     showMoreMenu: { type: Boolean, value: true },
-    minSets: { type: Number, value: 1 },
     currentSetsCount: { type: Number, value: 0 },
+  },
+
+  data: {
+    showNotesModal: false,
+    editingNotes: '',
   },
 
   methods: {
@@ -44,14 +47,19 @@ Component({
 
     onMore() {
       wx.showActionSheet({
-        itemList: ['复制', '删除'],
+        itemList: ['备注', '复制', '删除'],
         success: (res) => {
           if (res.tapIndex === 0) {
+            // 备注
+            this.setData({ showNotesModal: true, editingNotes: this.properties.notes });
+          } else if (res.tapIndex === 1) {
+            // 复制
             this.triggerEvent('duplicate', {
               setIndex: this.properties.setIndex,
               exIndex: this.properties.exIndex,
             });
-          } else if (res.tapIndex === 1) {
+          } else if (res.tapIndex === 2) {
+            // 删除
             this.triggerEvent('remove', {
               setIndex: this.properties.setIndex,
               exIndex: this.properties.exIndex,
@@ -62,12 +70,29 @@ Component({
       });
     },
 
-    onRemove() {
-      this.triggerEvent('remove', {
+    onNotesInput(e: WechatMiniprogram.BaseEvent) {
+      this.setData({ editingNotes: e.detail.value });
+    },
+
+    onNotesConfirm() {
+      this.triggerEvent('update', {
+        field: 'notes',
+        value: this.data.editingNotes,
         setIndex: this.properties.setIndex,
         exIndex: this.properties.exIndex,
-        currentSetsCount: this.properties.currentSetsCount,
       });
+      this.setData({ showNotesModal: false });
+    },
+
+    onNotesCancel() {
+      this.setData({ showNotesModal: false });
+    },
+
+    /** 格式化秒数为 mm:ss */
+    formatRestTime(seconds: number): string {
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      return `${m}:${s}`;
     },
   },
 });

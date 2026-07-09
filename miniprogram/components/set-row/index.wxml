@@ -1,6 +1,6 @@
 <!-- components/set-row/index.wxml -->
 <view class="set-row {{completed ? 'set-row--done' : ''}}">
-  <text class="set-col set-col--num">{{setIndex + 1}}</text>
+  <text class="set-col--num">{{setIndex + 1}}</text>
 
   <input
     class="set-input"
@@ -18,14 +18,6 @@
     data-field="reps"
     bindinput="onInput"
   />
-  <input
-    class="set-input set-input--notes"
-    type="text"
-    placeholder="备注"
-    value="{{notes}}"
-    data-field="notes"
-    bindinput="onInput"
-  />
 
   <!-- 休息时长 -->
   <input
@@ -40,12 +32,37 @@
 
   <!-- 完成按钮 -->
   <text class="set-col--toggle {{completed ? 'set-col--done' : ''}}" bindtap="onToggleComplete">
-    {{completed ? '☑' : '☐'}}
+    {{completed ? '✅' : '○'}}
   </text>
 
-  <!-- 菜单按钮 -->
-  <text wx:if="{{showMoreMenu}}" class="set-col--more" bindtap="onMore">⋯</text>
+  <!-- 更多菜单列 -->
+  <view class="set-col--more-wrap">
+    <text
+      wx:if="{{completed && restSeconds > 0}}"
+      class="set-col--rest-timer"
+    >{{formatRestTime(restSeconds)}}</text>
+    <text
+      wx:if="{{showMoreMenu}}"
+      class="set-col--more"
+      bindtap="onMore"
+    >⋯</text>
+  </view>
+</view>
 
-  <!-- 完成后的休息时长标记 -->
-  <text wx:if="{{completed && restSeconds > 0}}" class="set-col--rest-tag">休息 {{restSeconds}}s</text>
+<!-- 备注编辑弹窗 -->
+<view wx:if="{{showNotesModal}}" class="notes-overlay" bindtap="onNotesCancel">
+  <view class="notes-modal" catchtap="">
+    <text class="notes-modal-title">备注</text>
+    <textarea
+      class="notes-textarea"
+      value="{{editingNotes}}"
+      placeholder="输入备注..."
+      bindinput="onNotesInput"
+      maxlength="50"
+    />
+    <view class="notes-actions">
+      <button class="notes-btn notes-btn--cancel" bindtap="onNotesCancel">取消</button>
+      <button class="notes-btn notes-btn--confirm" bindtap="onNotesConfirm">确认</button>
+    </view>
+  </view>
 </view>

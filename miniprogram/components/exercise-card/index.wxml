@@ -38,10 +38,8 @@
     <text class="set-col set-col--num">组</text>
     <text class="set-col set-col--weight">重量(kg)</text>
     <text class="set-col set-col--reps">次数</text>
-    <text class="set-col set-col--notes">备注</text>
     <text class="set-col set-col--rest-header">休息</text>
-    <text class="set-col set-col--toggle-header">完成</text>
-    <text class="set-col set-col--more-header"></text>
+    <text class="set-col set-col--actions-header"></text>
   </view>
 
   <!-- 每组记录 -->
@@ -56,7 +54,6 @@
     set-index="{{index}}"
     ex-index="{{exerciseIndex}}"
     current-sets-count="{{sets.length}}"
-    show-delete="{{showRemove}}"
     show-more-menu="{{showRemove}}"
     bind:update="onSetUpdate"
     bind:remove="onSetRemove"
