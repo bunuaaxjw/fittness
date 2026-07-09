@@ -38,7 +38,6 @@
     <text class="set-col set-col--num">组</text>
     <text class="set-col set-col--weight">重量(kg)</text>
     <text class="set-col set-col--reps">次数</text>
-    <text class="set-col set-col--rest-header">休息</text>
     <text class="set-col set-col--actions-header"></text>
   </view>
 

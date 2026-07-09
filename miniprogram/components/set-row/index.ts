@@ -15,6 +15,7 @@ Component({
   data: {
     showNotesModal: false,
     editingNotes: '',
+    showRestModal: false,
   },
 
   methods: {
@@ -23,16 +24,6 @@ Component({
       this.triggerEvent('update', {
         field,
         value: e.detail.value,
-        setIndex: this.properties.setIndex,
-        exIndex: this.properties.exIndex,
-      });
-    },
-
-    onRestChange(e: WechatMiniprogram.BaseEvent) {
-      const val = parseInt(e.detail.value) || 0;
-      const clamped = Math.max(0, Math.min(300, val));
-      this.triggerEvent('restchange', {
-        value: clamped,
         setIndex: this.properties.setIndex,
         exIndex: this.properties.exIndex,
       });
@@ -47,18 +38,21 @@ Component({
 
     onMore() {
       wx.showActionSheet({
-        itemList: ['备注', '复制', '删除'],
+        itemList: ['备注', '休息', '复制', '删除'],
         success: (res) => {
           if (res.tapIndex === 0) {
             // 备注
             this.setData({ showNotesModal: true, editingNotes: this.properties.notes });
           } else if (res.tapIndex === 1) {
+            // 休息
+            this.setData({ showRestModal: true });
+          } else if (res.tapIndex === 2) {
             // 复制
             this.triggerEvent('duplicate', {
               setIndex: this.properties.setIndex,
               exIndex: this.properties.exIndex,
             });
-          } else if (res.tapIndex === 2) {
+          } else if (res.tapIndex === 3) {
             // 删除
             this.triggerEvent('remove', {
               setIndex: this.properties.setIndex,
@@ -70,6 +64,7 @@ Component({
       });
     },
 
+    // ---- 备注弹窗 ----
     onNotesInput(e: WechatMiniprogram.BaseEvent) {
       this.setData({ editingNotes: e.detail.value });
     },
@@ -86,6 +81,21 @@ Component({
 
     onNotesCancel() {
       this.setData({ showNotesModal: false });
+    },
+
+    // ---- 休息时间弹窗 ----
+    onRestSelect(e: WechatMiniprogram.BaseEvent) {
+      const sec = parseInt(e.currentTarget.dataset.seconds);
+      this.triggerEvent('restchange', {
+        value: sec,
+        setIndex: this.properties.setIndex,
+        exIndex: this.properties.exIndex,
+      });
+      this.setData({ showRestModal: false });
+    },
+
+    onRestCancel() {
+      this.setData({ showRestModal: false });
     },
 
     /** 格式化秒数为 mm:ss */

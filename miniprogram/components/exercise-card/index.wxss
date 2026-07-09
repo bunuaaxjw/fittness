@@ -109,16 +109,8 @@
 .set-col--reps { flex: 1; text-align: center; }
 .set-col--notes { flex: 1.5; text-align: center; }
 
-.set-col--rest-header {
-  flex: none;
-  width: 80rpx;
-  text-align: center;
-  font-size: 22rpx;
-  color: #999;
-}
-
 .set-col--actions-header {
-  width: 76rpx;
+  width: 108rpx;
 }
 
 /* ===== 添加组按钮 ===== */

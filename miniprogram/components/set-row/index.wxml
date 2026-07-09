@@ -19,21 +19,10 @@
     bindinput="onInput"
   />
 
-  <!-- 休息时长 -->
-  <input
-    class="set-input set-input--rest"
-    type="number"
-    placeholder="60"
-    value="{{restSeconds}}"
-    maxlength="3"
-    bindinput="onRestChange"
-  />
-  <text class="set-col--rest-unit">s</text>
-
-  <!-- 完成按钮 -->
-  <text class="set-col--toggle {{completed ? 'set-col--done' : ''}}" bindtap="onToggleComplete">
-    {{completed ? '✅' : '○'}}
-  </text>
+  <!-- 完成按钮（框+对号，和输入框统一风格） -->
+  <view class="set-toggle-box {{completed ? 'set-toggle-box--done' : ''}}" bindtap="onToggleComplete">
+    <text wx:if="{{completed}}" class="set-toggle-check">✓</text>
+  </view>
 
   <!-- 更多菜单列 -->
   <view class="set-col--more-wrap">
@@ -64,5 +53,30 @@
       <button class="notes-btn notes-btn--cancel" bindtap="onNotesCancel">取消</button>
       <button class="notes-btn notes-btn--confirm" bindtap="onNotesConfirm">确认</button>
     </view>
+  </view>
+</view>
+
+<!-- 休息时间选择弹窗 -->
+<view wx:if="{{showRestModal}}" class="notes-overlay" bindtap="onRestCancel">
+  <view class="notes-modal rest-picker" catchtap="">
+    <text class="notes-modal-title">组间休息时长</text>
+    <view class="rest-options">
+      <view class="rest-opt" data-seconds="30" bindtap="onRestSelect">
+        <text class="rest-opt-val">30s</text>
+      </view>
+      <view class="rest-opt" data-seconds="60" bindtap="onRestSelect">
+        <text class="rest-opt-val">60s</text>
+      </view>
+      <view class="rest-opt" data-seconds="90" bindtap="onRestSelect">
+        <text class="rest-opt-val">90s</text>
+      </view>
+      <view class="rest-opt" data-seconds="120" bindtap="onRestSelect">
+        <text class="rest-opt-val">120s</text>
+      </view>
+      <view class="rest-opt" data-seconds="180" bindtap="onRestSelect">
+        <text class="rest-opt-val">180s</text>
+      </view>
+    </view>
+    <button class="notes-btn notes-btn--cancel" bindtap="onRestCancel">取消</button>
   </view>
 </view>
