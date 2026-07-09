@@ -126,3 +126,46 @@ interface IUserInfo {
   city: string;
   language: string;
 }
+
+// ===== v0.3.0 重构新增类型 =====
+
+/** 扩展后的动作类型（兼容旧字段，新增可选字段） */
+interface IExerciseExtended extends IExercise {
+  name_en?: string;          // 英文名，便于搜索
+  equipment?: string;        // 器械类型（中文），如"杠铃"
+  target_muscle?: string;    // 目标肌肉，如"胸大肌"
+  instructions_zh?: string;  // 中文动作说明
+  gif_url?: string;          // CDN GIF 链接
+  source?: 'builtin' | 'extended';  // 内置 vs 扩展
+}
+
+/** 训练保存数据格式 */
+interface IWorkoutData {
+  _id?: string;
+  date: string;
+  duration_min: number;
+  notes: string;
+  created_at?: Date;
+  sets: Array<{
+    exercise_id: string;
+    exercise_name: string;
+    weight_kg: number;
+    reps: number;
+    notes: string;
+    sort_order: number;
+  }>;
+}
+
+/** 动作 + 组数据（训练页状态用） */
+interface ExerciseWithSets {
+  exercise: IExerciseExtended;
+  sets: Array<{ weight_kg: number | string; reps: number | string; notes: string }>;
+}
+
+/** 训练页状态数据 */
+interface WorkoutStateData {
+  exercises: ExerciseWithSets[];
+  recentExercises: IExerciseExtended[];
+  suggestions: IExerciseExtended[];
+  startedAt: number;
+}
