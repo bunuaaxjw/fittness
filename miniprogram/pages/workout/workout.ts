@@ -1,12 +1,10 @@
-// pages/workout/workout.ts — 训练页
-import { formatDate } from '../../utils/format';
-import { showError, showSuccess } from '../../utils/error';
-import { addSet, removeSet, buildSetUpdatePath, buildSaveSets } from '../../utils/workout-helper';
-import { query, add } from '../../utils/db';
+// pages/workout/workout.ts — 训练页（重构后）
+import { WorkoutState, WorkoutService } from '../../services/workout-service';
+import { CacheManager } from '../../dal/cache';
 
 interface IPageData {
   isWorkoutActive: boolean;
-  selectedExercises: ISelectedExercise[];
+  state: WorkoutState | null;
   elapsedSeconds: number;
   timerText: string;
   saving: boolean;
@@ -15,7 +13,7 @@ interface IPageData {
 Page<IPageData, {}>({
   data: {
     isWorkoutActive: false,
-    selectedExercises: [],
+    state: null,
     elapsedSeconds: 0,
     timerText: '00:00',
     saving: false,
@@ -23,6 +21,7 @@ Page<IPageData, {}>({
 
   _timerInterval: null as number | null,
   _startTime: null as number | null,
+  _service: null as WorkoutService | null,
 
   onUnload() {
     this.stopTimer();
@@ -30,58 +29,58 @@ Page<IPageData, {}>({
 
   // ===== 训练流程 =====
 
-  startWorkout() {
+  async startWorkout() {
     this._startTime = Date.now();
+    const service = new WorkoutService();
+    this._service = service;
+    const { recentExercises, suggestions } = await service.initWorkout();
     this.setData({
       isWorkoutActive: true,
-      selectedExercises: [],
+      state: WorkoutState.create(recentExercises, suggestions),
       elapsedSeconds: 0,
       timerText: '00:00',
     });
     this.startTimer();
   },
 
-  async openExercisePicker() {
-    let recentIds: string[] = [];
-    try {
-      const setsRes = await query('sets', {}, { orderBy: { field: 'sort_order', direction: 'asc' }, limit: 200 });
-      if (setsRes.success) {
-        const seen = new Set<string>();
-        for (const s of setsRes.data.reverse()) {
-          if (s.exercise_id && !seen.has(s.exercise_id)) { seen.add(s.exercise_id); recentIds.push(s.exercise_id); }
-          if (recentIds.length >= 10) break;
-        }
-      }
-    } catch { /* 不阻塞 */ }
-
-    const recentParam = recentIds.length > 0 ? `&recentIds=${recentIds.join(',')}` : '';
+  openExercisePicker() {
+    const state = this.data.state;
+    const recentIds = state
+      ? state.recentExercises.map((e) => e._id).join(',')
+      : '';
     wx.navigateTo({
-      url: `/pages/exercise-pick/index?mode=pick${recentParam}`,
-      events: { selectExercise: (data: { exercise: IExercise }) => { this.addExercise(data.exercise); } },
+      url: `/pages/exercise-pick/index?mode=pick${recentIds ? `&recentIds=${recentIds}` : ''}`,
+      events: {
+        selectExercise: (data: { exercise: IExerciseExtended }) => {
+          this.addExercise(data.exercise);
+        },
+      },
     });
   },
 
-  addExercise(exercise: IExercise) {
-    if (!exercise) return;
-    const exists = this.data.selectedExercises.some((e) => e.exercise._id === exercise._id);
-    if (exists) { wx.showToast({ title: '该动作已添加', icon: 'none' }); return; }
-    const selectedExercises = [...this.data.selectedExercises];
-    selectedExercises.push({ exercise, sets: [{ weight_kg: '', reps: '', notes: '' }] });
-    this.setData({ selectedExercises });
+  addExercise(exercise: IExerciseExtended) {
+    if (!exercise || !this.data.state) return;
+    const service = this._service || new WorkoutService();
+    const newState = service.addExercise(this.data.state, exercise);
+    if (newState === this.data.state) {
+      wx.showToast({ title: '该动作已添加', icon: 'none' });
+      return;
+    }
+    this.setData({ state: newState });
   },
 
   // ===== 组件事件 =====
 
   onRemoveExercise(e: any) {
     const { index } = e.detail;
-    const name = this.data.selectedExercises[index].exercise.name;
+    const name = this.data.state!.exercises[index].exercise.name;
     wx.showModal({
-      title: '移除动作', content: `确定要移除 ${name} 吗？`,
+      title: '移除动作',
+      content: `确定要移除 ${name} 吗？`,
       success: (res) => {
         if (res.confirm) {
-          const selectedExercises = [...this.data.selectedExercises];
-          selectedExercises.splice(index, 1);
-          this.setData({ selectedExercises });
+          const service = this._service || new WorkoutService();
+          this.setData({ state: service.removeExercise(this.data.state!, index) });
         }
       },
     });
@@ -89,31 +88,38 @@ Page<IPageData, {}>({
 
   onAddSet(e: any) {
     const { index } = e.detail;
-    const selectedExercises = addSet(this.data.selectedExercises, index);
-    const sets = selectedExercises[index].sets;
-    if (sets.length >= 2) { const prev = sets[sets.length - 2]; const last = sets[sets.length - 1]; last.weight_kg = prev.weight_kg; last.reps = prev.reps; }
-    this.setData({ selectedExercises });
+    const service = this._service || new WorkoutService();
+    this.setData({ state: service.addSet(this.data.state!, index) });
   },
 
   onSetRemove(e: any) {
     const { exIndex, setIndex } = e.detail;
-    const result = removeSet(this.data.selectedExercises, exIndex, setIndex);
-    if (!result) { wx.showToast({ title: '每个动作至少保留一组', icon: 'none' }); return; }
-    this.setData({ selectedExercises: result });
+    const service = this._service || new WorkoutService();
+    const newState = service.removeSet(this.data.state!, exIndex, setIndex);
+    if (!newState) {
+      wx.showToast({ title: '每个动作至少保留一组', icon: 'none' });
+      return;
+    }
+    this.setData({ state: newState });
   },
 
   onSetUpdate(e: any) {
     const { exIndex, setIndex, field, value } = e.detail;
-    const { key, value: v } = buildSetUpdatePath('selectedExercises', exIndex, setIndex, field, value);
-    this.setData({ [key]: v });
+    const service = this._service || new WorkoutService();
+    const newState = service.updateSet(this.data.state!, exIndex, setIndex, field, value);
+    this.setData({ state: newState });
   },
 
   // ===== 完成训练 =====
 
   finishWorkout() {
-    if (this.data.selectedExercises.length === 0) { wx.showToast({ title: '请至少添加一个动作', icon: 'none' }); return; }
+    if (!this.data.state || this.data.state.isEmpty()) {
+      wx.showToast({ title: '请至少添加一个动作', icon: 'none' });
+      return;
+    }
     wx.showModal({
-      title: '完成训练', content: '确定要结束本次训练吗？',
+      title: '完成训练',
+      content: '确定要结束本次训练吗？',
       success: (res) => { if (res.confirm) this.saveWorkout(); },
     });
   },
@@ -121,65 +127,45 @@ Page<IPageData, {}>({
   async saveWorkout() {
     this.setData({ saving: true });
     wx.showLoading({ title: '保存中...' });
+
+    const state = this.data.state!;
     const durationMin = Math.round(this.data.elapsedSeconds / 60);
-
-    const flatExercises = this.data.selectedExercises.map((item) => ({
-      exercise_id: item.exercise._id, exercise_name: item.exercise.name, sets: item.sets,
-    }));
-    const sets = buildSaveSets(flatExercises);
-
-    let success = false;
-    try {
-      const res: ICloudFunctionResult = await wx.cloud.callFunction({
-        name: 'saveWorkout',
-        data: { mode: 'create', date: formatDate(), duration_min: durationMin, notes: '', sets },
-      });
-      success = res.result.success;
-      if (!success) showError(res.result.error || '保存失败');
-    } catch {
-      // 云函数不可用，降级为客户端直接写入
-      console.warn('[workout] 云函数不可用，使用客户端保存');
-      success = await this.clientSave(durationMin, sets);
-    }
+    const service = this._service || new WorkoutService();
+    const result = await service.saveWorkout(state, durationMin, '');
 
     wx.hideLoading();
-    if (success) { this.showWorkoutSummary(durationMin); this.resetWorkout(); }
+    if (result.success) {
+      this.showWorkoutSummary(durationMin);
+      this.resetWorkout();
+    }
     this.setData({ saving: false });
   },
 
-  async clientSave(durationMin: number, sets: any[]): Promise<boolean> {
-    try {
-      const workoutRes = await add('workouts', {
-        date: formatDate(), duration_min: durationMin, notes: '', created_at: new Date(),
-      });
-      if (!workoutRes.success || !workoutRes._id) return false;
-      let setOrder = 0;
-      for (const set of sets) {
-        await add('sets', {
-          workout_id: workoutRes._id, exercise_id: set.exercise_id,
-          exercise_name: set.exercise_name, weight_kg: set.weight_kg,
-          reps: set.reps, notes: set.notes, sort_order: setOrder++,
-        });
-      }
-      return true;
-    } catch { return false; }
-  },
-
   showWorkoutSummary(durationMin: number) {
-    const exerciseCount = this.data.selectedExercises.length;
-    const totalSets = this.data.selectedExercises.reduce((sum, ex) => sum + ex.sets.filter((s: any) => s.weight_kg || s.reps).length, 0);
-    const names = this.data.selectedExercises.map((ex) => ex.exercise.name).join('、');
+    const state = this.data.state!;
+    const exerciseCount = state.exercises.length;
+    const totalSets = state.getTotalSets();
+    const names = state.exercises.map((ex) => ex.exercise.name).join('、');
     wx.showModal({
       title: '💪 训练完成！',
       content: `${exerciseCount} 个动作 · ${totalSets} 组 · ${durationMin} 分钟\n\n${names}`,
-      showCancel: false, confirmText: '好的',
+      showCancel: false,
+      confirmText: '好的',
     });
   },
 
   resetWorkout() {
-    this.stopTimer(); this._startTime = null;
-    this.setData({ isWorkoutActive: false, selectedExercises: [], elapsedSeconds: 0, timerText: '00:00' });
-    wx.removeStorageSync('index_cache'); // 清除首页缓存
+    this.stopTimer();
+    this._startTime = null;
+    this._service = null;
+    CacheManager.getInstance().invalidate('index');
+    wx.removeStorageSync('index_cache');
+    this.setData({
+      isWorkoutActive: false,
+      state: null,
+      elapsedSeconds: 0,
+      timerText: '00:00',
+    });
   },
 
   // ===== 计时器 =====
@@ -188,7 +174,9 @@ Page<IPageData, {}>({
     this._timerInterval = setInterval(() => {
       if (!this._startTime) return;
       const elapsed = Math.floor((Date.now() - this._startTime) / 1000);
-      this.setData({ elapsedSeconds: elapsed, timerText: `${String(Math.floor(elapsed / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}` });
+      const min = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const sec = String(elapsed % 60).padStart(2, '0');
+      this.setData({ elapsedSeconds: elapsed, timerText: `${min}:${sec}` });
     }, 1000) as unknown as number;
   },
 

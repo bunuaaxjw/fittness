@@ -1,4 +1,4 @@
-<!-- pages/workout/workout.wxml — 训练页 -->
+<!-- pages/workout/workout.wxml — 训练页（重构后） -->
 <view class="container">
   <!-- 未开始训练：引导页 -->
   <view wx:if="{{!isWorkoutActive}}" class="workout-start card text-center">
@@ -9,7 +9,7 @@
   </view>
 
   <!-- 训练进行中 -->
-  <view wx:if="{{isWorkoutActive}}">
+  <view wx:if="{{isWorkoutActive && state}}">
     <!-- 计时器卡片 -->
     <view class="card timer-card flex-between">
       <view>
@@ -21,10 +21,13 @@
 
     <!-- 已选动作列表 -->
     <exercise-card
-      wx:for="{{selectedExercises}}"
+      wx:for="{{state.exercises}}"
       wx:key="exercise._id"
       name="{{item.exercise.name}}"
       body-part="{{item.exercise.body_part}}"
+      icon="{{item.exercise.icon}}"
+      gif-url="{{item.exercise.gif_url}}"
+      instructions-zh="{{item.exercise.instructions_zh}}"
       sets="{{item.sets}}"
       exercise-index="{{index}}"
       show-remove="{{true}}"
