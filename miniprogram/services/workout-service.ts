@@ -45,6 +45,31 @@ class WorkoutState {
     return this.exercises.length === 0;
   }
 
+  /** 切换组的完成状态 */
+  toggleSetComplete(exerciseIndex: number, setIndex: number): WorkoutState {
+    const exercises = this.cloneExercises();
+    const set = exercises[exerciseIndex].sets[setIndex];
+    set.completed = !set.completed;
+    return new WorkoutState(exercises, this.recentExercises, this.suggestions, this.startedAt);
+  }
+
+  /** 更新组的休息秒数 */
+  updateSetRest(exerciseIndex: number, setIndex: number, seconds: number): WorkoutState {
+    const exercises = this.cloneExercises();
+    exercises[exerciseIndex].sets[setIndex].rest_seconds = seconds;
+    return new WorkoutState(exercises, this.recentExercises, this.suggestions, this.startedAt);
+  }
+
+  /** 复制指定组（在它后面插入副本） */
+  duplicateSet(exerciseIndex: number, setIndex: number): WorkoutState {
+    const exercises = this.cloneExercises();
+    const sets = exercises[exerciseIndex].sets;
+    const source = sets[setIndex];
+    const copy = { weight_kg: source.weight_kg, reps: source.reps, notes: source.notes, rest_seconds: source.rest_seconds, completed: false };
+    sets.splice(setIndex + 1, 0, copy);
+    return new WorkoutState(exercises, this.recentExercises, this.suggestions, this.startedAt);
+  }
+
   /** 深拷贝 exercises 数组用于不可变更新 */
   private cloneExercises(): ExerciseWithSets[] {
     return this.exercises.map((ex) => ({
@@ -97,7 +122,7 @@ class WorkoutService {
     if (exists) return state;
     const exercises = [
       ...state.cloneExercises(),
-      { exercise, sets: [{ weight_kg: '', reps: '', notes: '' }] },
+      { exercise, sets: [{ weight_kg: '', reps: '', notes: '', rest_seconds: 60, completed: false }] },
     ];
     return new WorkoutState(exercises, state.recentExercises, state.suggestions, state.startedAt);
   }
@@ -113,11 +138,12 @@ class WorkoutService {
   addSet(state: WorkoutState, exerciseIndex: number): WorkoutState {
     const exercises = state.cloneExercises();
     const sets = exercises[exerciseIndex].sets;
-    const newSet = { weight_kg: '', reps: '', notes: '' };
+    const newSet = { weight_kg: '', reps: '', notes: '', rest_seconds: 60, completed: false };
     if (sets.length >= 1) {
       const prev = sets[sets.length - 1];
       newSet.weight_kg = prev.weight_kg;
       newSet.reps = prev.reps;
+      newSet.rest_seconds = prev.rest_seconds;
     }
     sets.push(newSet);
     return new WorkoutState(exercises, state.recentExercises, state.suggestions, state.startedAt);
@@ -136,6 +162,18 @@ class WorkoutService {
     const exercises = state.cloneExercises();
     (exercises[exIdx].sets[setIdx] as any)[field] = value;
     return new WorkoutState(exercises, state.recentExercises, state.suggestions, state.startedAt);
+  }
+
+  toggleSetComplete(state: WorkoutState, exIdx: number, setIdx: number): WorkoutState {
+    return state.toggleSetComplete(exIdx, setIdx);
+  }
+
+  updateSetRest(state: WorkoutState, exIdx: number, setIdx: number, seconds: number): WorkoutState {
+    return state.updateSetRest(exIdx, setIdx, seconds);
+  }
+
+  duplicateSet(state: WorkoutState, exIdx: number, setIdx: number): WorkoutState {
+    return state.duplicateSet(exIdx, setIdx);
   }
 
   /** 构建保存数据 */
