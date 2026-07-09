@@ -3,59 +3,59 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 6rpx 0;
+  padding: 4rpx 0;
 }
 
-.set-row--done {
-  background: #eafaf1;
-  border-radius: 8rpx;
-}
-
+/* 行号 */
 .set-col--num {
-  width: 36rpx;
+  width: 32rpx;
   font-size: 22rpx;
   color: #999;
   text-align: center;
   flex-shrink: 0;
 }
 
-.set-row--done .set-col--num {
-  color: #27ae60;
-  font-weight: 600;
-}
-
 /* 重量/次数输入框 */
 .set-input {
-  width: 120rpx;
+  width: 100rpx;
+  height: 44rpx;
   flex: none;
-  background: #f5f5f5;
+  background-color: #f5f5f5;
   border-radius: 6rpx;
-  padding: 8rpx 4rpx;
+  padding: 0 4rpx;
   font-size: 24rpx;
   text-align: center;
   margin: 0 4rpx;
+  line-height: 44rpx;
 }
 
-/* 完成按钮框 — 和输入框统一风格 */
+/* 完成后的输入框变绿 */
+.set-input--done {
+  background-color: #d5f5e3;
+}
+
+/* 完成按钮框 — 未完成空心，完成绿底白✓ */
 .set-toggle-box {
-  width: 72rpx;
+  width: 60rpx;
   height: 44rpx;
-  background: #f5f5f5;
+  border: 2rpx solid #ddd;
   border-radius: 6rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 4rpx;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .set-toggle-box--done {
-  background: #f5f5f5;
+  background-color: #27ae60;
+  border-color: #27ae60;
 }
 
 .set-toggle-check {
-  font-size: 28rpx;
-  color: #1a1a1a;
+  font-size: 26rpx;
+  color: #fff;
   font-weight: 700;
   line-height: 1;
 }
@@ -65,14 +65,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 36rpx;
+  width: 40rpx;
   flex-shrink: 0;
+  margin-left: 4rpx;
 }
 
 .set-col--rest-timer {
   font-size: 18rpx;
   color: #27ae60;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .set-col--more {

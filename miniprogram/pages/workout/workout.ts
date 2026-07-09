@@ -31,6 +31,10 @@ Page<IPageData, {}>({
 
   _timerInterval: null as number | null,
   _restInterval: null as number | null,
+  _rtSeconds: 0,
+  _rtTotal: 0,
+  _rtExercise: '',
+  _rtSetIndex: 0,
   _startTime: null as number | null,
   _service: null as WorkoutService | null,
 
@@ -237,6 +241,10 @@ Page<IPageData, {}>({
   startRestTimer(exerciseName: string, setIndex: number, seconds: number) {
     if (seconds <= 0) return;
     this.stopRestTimer();
+    this._rtSeconds = seconds;
+    this._rtTotal = seconds;
+    this._rtExercise = exerciseName;
+    this._rtSetIndex = setIndex;
     this.setData({
       restTimer: {
         visible: true,
@@ -249,15 +257,13 @@ Page<IPageData, {}>({
       },
     });
     this._restInterval = setInterval(() => {
-      const rt = this.data.restTimer;
-      if (!rt || rt.seconds <= 0) return;
-      const newSeconds = rt.seconds - 1;
-      if (newSeconds <= 0) {
+      this._rtSeconds = this._rtSeconds - 1;
+      if (this._rtSeconds <= 0) {
         this.finishRestTimer();
       } else {
         this.setData({
-          'restTimer.seconds': newSeconds,
-          'restTimer.display': this.fmtTimer(newSeconds),
+          'restTimer.seconds': this._rtSeconds,
+          'restTimer.display': this.fmtTimer(this._rtSeconds),
         });
       }
     }, 1000) as unknown as number;
@@ -274,17 +280,24 @@ Page<IPageData, {}>({
   },
 
   onRestAdd10() {
-    const rt = this.data.restTimer;
-    if (!rt) return;
-    const newSec = rt.seconds + 10;
-    this.setData({ 'restTimer.seconds': newSec, 'restTimer.total': rt.total + 10, 'restTimer.display': this.fmtTimer(newSec) });
+    this._rtSeconds = this._rtSeconds + 10;
+    this._rtTotal = this._rtTotal + 10;
+    this.setData({
+      'restTimer.seconds': this._rtSeconds,
+      'restTimer.total': this._rtTotal,
+      'restTimer.display': this.fmtTimer(this._rtSeconds),
+    });
   },
 
   onRestSub10() {
-    const rt = this.data.restTimer;
-    if (!rt || rt.seconds <= 10) return;
-    const newSec = rt.seconds - 10;
-    this.setData({ 'restTimer.seconds': newSec, 'restTimer.total': rt.total - 10, 'restTimer.display': this.fmtTimer(newSec) });
+    if (this._rtSeconds <= 10) return;
+    this._rtSeconds = this._rtSeconds - 10;
+    this._rtTotal = this._rtTotal - 10;
+    this.setData({
+      'restTimer.seconds': this._rtSeconds,
+      'restTimer.total': this._rtTotal,
+      'restTimer.display': this.fmtTimer(this._rtSeconds),
+    });
   },
 
   onRestSkip() {
