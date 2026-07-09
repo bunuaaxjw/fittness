@@ -22,7 +22,7 @@
 
   <!-- 更多菜单列（右对齐） -->
   <view class="set-col--more-wrap">
-    <text wx:if="{{completed && restSeconds > 0}}" class="set-col--rest-timer">{{restTimerText}}</text>
+    <text wx:if="{{completed && restDone && restSeconds > 0}}" class="set-col--rest-timer">{{restTimerText}}</text>
     <text wx:if="{{showMoreMenu}}" class="set-col--more" bindtap="onMore">⋯</text>
   </view>
 </view>

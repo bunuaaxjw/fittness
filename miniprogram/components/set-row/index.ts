@@ -6,6 +6,7 @@ Component({
     notes: { type: String, value: '' },
     restSeconds: { type: Number, value: 60 },
     completed: { type: Boolean, value: false },
+    restDone: { type: Boolean, value: false },
     setIndex: { type: Number, value: 0 },
     exIndex: { type: Number, value: 0 },
     showMoreMenu: { type: Boolean, value: true },

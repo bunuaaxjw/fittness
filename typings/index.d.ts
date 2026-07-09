@@ -71,6 +71,7 @@ interface ISetFormData {
   notes: string;
   rest_seconds: number;    // 组间休息秒数，默认 60
   completed: boolean;      // 是否已完成，默认 false
+  rest_done: boolean;      // 休息是否结束（倒计时归零或跳过），默认 false
 }
 
 /** 训练详情/历史详情 — 带分组的动作 */

@@ -237,9 +237,10 @@ Page<IPageData, {}>({
     const actualRest = full ? this.data.rtTotal : Math.max(elapsed, 1);
     this.stopRestTimer();
     wx.vibrateShort({ type: 'medium' });
-    // 更新组的实际休息时长
+    if (!this.data.state) return;
     const service = this._service || new WorkoutService();
-    const newState = service.updateSetRest(this.data.state!, this.data.rtExIndex, this.data.rtSetIndex, actualRest);
+    let newState = service.updateSetRest(this.data.state, this.data.rtExIndex, this.data.rtSetIndex, actualRest);
+    newState = service.setRestDone(newState, this.data.rtExIndex, this.data.rtSetIndex);
     this.setData({ state: newState, rtVisible: false });
   },
 

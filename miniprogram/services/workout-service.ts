@@ -65,8 +65,15 @@ class WorkoutState {
     const exercises = this.cloneExercises();
     const sets = exercises[exerciseIndex].sets;
     const source = sets[setIndex];
-    const copy = { weight_kg: source.weight_kg, reps: source.reps, notes: source.notes, rest_seconds: source.rest_seconds, completed: false };
+    const copy = { weight_kg: source.weight_kg, reps: source.reps, notes: source.notes, rest_seconds: source.rest_seconds, completed: false, rest_done: false };
     sets.splice(setIndex + 1, 0, copy);
+    return new WorkoutState(exercises, this.recentExercises, this.suggestions, this.startedAt);
+  }
+
+  /** 标记休息完成（倒计时结束或跳过） */
+  setRestDone(exerciseIndex: number, setIndex: number): WorkoutState {
+    const exercises = this.cloneExercises();
+    exercises[exerciseIndex].sets[setIndex].rest_done = true;
     return new WorkoutState(exercises, this.recentExercises, this.suggestions, this.startedAt);
   }
 
@@ -122,7 +129,7 @@ class WorkoutService {
     if (exists) return state;
     const exercises = [
       ...state.cloneExercises(),
-      { exercise, sets: [{ weight_kg: '', reps: '', notes: '', rest_seconds: 60, completed: false }] },
+      { exercise, sets: [{ weight_kg: '', reps: '', notes: '', rest_seconds: 60, completed: false, rest_done: false }] },
     ];
     return new WorkoutState(exercises, state.recentExercises, state.suggestions, state.startedAt);
   }
@@ -138,7 +145,7 @@ class WorkoutService {
   addSet(state: WorkoutState, exerciseIndex: number): WorkoutState {
     const exercises = state.cloneExercises();
     const sets = exercises[exerciseIndex].sets;
-    const newSet = { weight_kg: '', reps: '', notes: '', rest_seconds: 60, completed: false };
+    const newSet = { weight_kg: '', reps: '', notes: '', rest_seconds: 60, completed: false, rest_done: false };
     if (sets.length >= 1) {
       const prev = sets[sets.length - 1];
       newSet.weight_kg = prev.weight_kg;
@@ -174,6 +181,10 @@ class WorkoutService {
 
   duplicateSet(state: WorkoutState, exIdx: number, setIdx: number): WorkoutState {
     return state.duplicateSet(exIdx, setIdx);
+  }
+
+  setRestDone(state: WorkoutState, exIdx: number, setIdx: number): WorkoutState {
+    return state.setRestDone(exIdx, setIdx);
   }
 
   /** 构建保存数据 */
