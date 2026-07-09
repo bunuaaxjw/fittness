@@ -35,6 +35,9 @@
       bind:setupdate="onSetUpdate"
       bind:setremove="onSetRemove"
       bind:removeexercise="onRemoveExercise"
+      bind:settogglecomplete="onSetToggleComplete"
+      bind:setrestchange="onSetRestChange"
+      bind:setduplicate="onSetDuplicate"
     />
 
     <!-- 底部操作栏 -->
@@ -47,5 +50,29 @@
         完成训练
       </button>
     </view>
+  </view>
+
+  <!-- 组间倒计时弹窗 -->
+  <view wx:if="{{restTimer && restTimer.visible && !restTimer.minimized}}" class="rest-overlay">
+    <view class="rest-modal">
+      <view class="rest-modal-header">
+        <text></text>
+        <text class="rest-minimize-btn" bindtap="onRestMinimize">— 最小化</text>
+      </view>
+      <text class="rest-exercise-label">{{restTimer.exerciseName}} 第 {{restTimer.setIndex + 1}} 组</text>
+      <text class="rest-countdown">{{restTimer.seconds < 60 ? '0:' + (restTimer.seconds < 10 ? '0' : '') + restTimer.seconds : Math.floor(restTimer.seconds / 60) + ':' + (restTimer.seconds % 60 < 10 ? '0' : '') + (restTimer.seconds % 60)}}</text>
+      <view class="rest-actions">
+        <button class="rest-btn rest-btn--add" bindtap="onRestAdd10">＋10s</button>
+        <button class="rest-btn rest-btn--skip" bindtap="onRestSkip">跳过</button>
+        <button class="rest-btn rest-btn--sub" bindtap="onRestSub10">−10s</button>
+      </view>
+      <text class="rest-hint">组间休息，下一组准备...</text>
+    </view>
+  </view>
+
+  <!-- 最小化倒计时条 -->
+  <view wx:if="{{restTimer && restTimer.visible && restTimer.minimized}}" class="rest-minibar">
+    <text class="rest-minibar-text">⏱ 组间休息 {{restTimer.seconds < 60 ? '0:' + (restTimer.seconds < 10 ? '0' : '') + restTimer.seconds : Math.floor(restTimer.seconds / 60) + ':' + (restTimer.seconds % 60 < 10 ? '0' : '') + (restTimer.seconds % 60)}}</text>
+    <text class="rest-minibar-expand" bindtap="onRestExpand">展开</text>
   </view>
 </view>
