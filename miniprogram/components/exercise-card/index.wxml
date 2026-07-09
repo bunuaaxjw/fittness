@@ -33,14 +33,6 @@
 
   <view class="divider"></view>
 
-  <!-- 组列表头 -->
-  <view class="set-header flex-row">
-    <text class="set-col set-col--num">组</text>
-    <text class="set-col set-col--weight">重量(kg)</text>
-    <text class="set-col set-col--reps">次数</text>
-    <text class="set-col set-col--actions-header"></text>
-  </view>
-
   <!-- 每组记录 -->
   <set-row
     wx:for="{{sets}}"

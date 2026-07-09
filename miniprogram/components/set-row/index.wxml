@@ -2,43 +2,32 @@
 <view class="set-row {{completed ? 'set-row--done' : ''}}">
   <text class="set-col--num">{{setIndex + 1}}</text>
 
-  <input
-    class="set-input {{completed ? 'set-input--done' : ''}}"
-    type="digit"
-    placeholder="0"
-    value="{{weight}}"
-    data-field="weight_kg"
-    bindinput="onInput"
-  />
-  <input
-    class="set-input {{completed ? 'set-input--done' : ''}}"
-    type="number"
-    placeholder="0"
-    value="{{reps}}"
-    data-field="reps"
-    bindinput="onInput"
-  />
-
-  <!-- 完成按钮：未完成=空心框，完成=绿底白✓ -->
-  <view class="set-toggle-box {{completed ? 'set-toggle-box--done' : ''}}" bindtap="onToggleComplete">
-    <text wx:if="{{completed}}" class="set-toggle-check">✓</text>
+  <!-- 重量方形框 -->
+  <view class="set-square">
+    <text class="set-square-label">KG</text>
+    <input class="set-square-input" type="digit" placeholder="0" value="{{weight}}" data-field="weight_kg" bindinput="onInput"/>
   </view>
 
-  <!-- 更多菜单列 -->
+  <!-- 次数方形框 -->
+  <view class="set-square">
+    <text class="set-square-label">次</text>
+    <input class="set-square-input" type="number" placeholder="0" value="{{reps}}" data-field="reps" bindinput="onInput"/>
+  </view>
+
+  <!-- 完成按钮（空心 ○ / 绿底白 ✓） -->
+  <view class="set-toggle-box {{completed ? 'set-toggle-box--done' : ''}}" bindtap="onToggleComplete">
+    <text wx:if="{{!completed}}" class="set-toggle-empty">○</text>
+    <text wx:else class="set-toggle-check">✓</text>
+  </view>
+
+  <!-- 更多菜单列（右对齐） -->
   <view class="set-col--more-wrap">
-    <text
-      wx:if="{{completed && restSeconds > 0}}"
-      class="set-col--rest-timer"
-    >{{restTimerText}}</text>
-    <text
-      wx:if="{{showMoreMenu}}"
-      class="set-col--more"
-      bindtap="onMore"
-    >⋯</text>
+    <text wx:if="{{completed && restSeconds > 0}}" class="set-col--rest-timer">{{restTimerText}}</text>
+    <text wx:if="{{showMoreMenu}}" class="set-col--more" bindtap="onMore">⋯</text>
   </view>
 </view>
 
-<!-- 备注编辑弹窗 -->
+<!-- 备注弹窗 -->
 <view wx:if="{{showNotesModal}}" class="notes-overlay" bindtap="onNotesCancel">
   <view class="notes-modal" catchtap="">
     <text class="notes-modal-title">备注</text>
@@ -50,7 +39,7 @@
   </view>
 </view>
 
-<!-- 休息时间选择弹窗 -->
+<!-- 休息选择弹窗 -->
 <view wx:if="{{showRestModal}}" class="notes-overlay" bindtap="onRestCancel">
   <view class="notes-modal rest-picker" catchtap="">
     <text class="notes-modal-title">组间休息时长</text>

@@ -8,15 +8,14 @@ interface IPageData {
   elapsedSeconds: number;
   timerText: string;
   saving: boolean;
-  restTimer: {
-    visible: boolean;
-    minimized: boolean;
-    seconds: number;
-    total: number;
-    display: string;
-    exerciseName: string;
-    setIndex: number;
-  } | null;
+  rtVisible: boolean;
+  rtMinimized: boolean;
+  rtSeconds: number;
+  rtTotal: number;
+  rtDisplay: string;
+  rtExercise: string;
+  rtSetIndex: number;
+  rtExIndex: number;
 }
 
 Page<IPageData, {}>({
@@ -26,15 +25,19 @@ Page<IPageData, {}>({
     elapsedSeconds: 0,
     timerText: '00:00',
     saving: false,
-    restTimer: null,
+    rtVisible: false,
+    rtMinimized: false,
+    rtSeconds: 0,
+    rtTotal: 0,
+    rtDisplay: '00:00',
+    rtExercise: '',
+    rtSetIndex: 0,
+    rtExIndex: 0,
   },
 
   _timerInterval: null as number | null,
   _restInterval: null as number | null,
-  _rtSeconds: 0,
-  _rtTotal: 0,
-  _rtExercise: '',
-  _rtSetIndex: 0,
+  _rtStartedAt: 0,
   _startTime: null as number | null,
   _service: null as WorkoutService | null,
 
@@ -61,15 +64,11 @@ Page<IPageData, {}>({
 
   openExercisePicker() {
     const state = this.data.state;
-    const recentIds = state
-      ? state.recentExercises.map((e) => e._id).join(',')
-      : '';
+    const recentIds = state ? state.recentExercises.map((e) => e._id).join(',') : '';
     wx.navigateTo({
       url: `/pages/exercise-pick/index?mode=pick${recentIds ? `&recentIds=${recentIds}` : ''}`,
       events: {
-        selectExercise: (data: { exercise: IExerciseExtended }) => {
-          this.addExercise(data.exercise);
-        },
+        selectExercise: (data: { exercise: IExerciseExtended }) => { this.addExercise(data.exercise); },
       },
     });
   },
@@ -91,8 +90,7 @@ Page<IPageData, {}>({
     const { index } = e.detail;
     const name = this.data.state!.exercises[index].exercise.name;
     wx.showModal({
-      title: '移除动作',
-      content: `确定要移除 ${name} 吗？`,
+      title: '移除动作', content: `确定要移除 ${name} 吗？`,
       success: (res) => {
         if (res.confirm) {
           const service = this._service || new WorkoutService();
@@ -112,21 +110,16 @@ Page<IPageData, {}>({
     const { exIndex, setIndex } = e.detail;
     const service = this._service || new WorkoutService();
     const newState = service.removeSet(this.data.state!, exIndex, setIndex);
-    if (!newState) {
-      wx.showToast({ title: '每个动作至少保留一组', icon: 'none' });
-      return;
-    }
+    if (!newState) { wx.showToast({ title: '每个动作至少保留一组', icon: 'none' }); return; }
     this.setData({ state: newState });
   },
 
   onSetUpdate(e: any) {
     const { exIndex, setIndex, field, value } = e.detail;
     const service = this._service || new WorkoutService();
-    const newState = service.updateSet(this.data.state!, exIndex, setIndex, field, value);
-    this.setData({ state: newState });
+    this.setData({ state: service.updateSet(this.data.state!, exIndex, setIndex, field, value) });
   },
 
-  /** 切换完成状态 → 已完成时触发倒计时 */
   onSetToggleComplete(e: any) {
     const { exIndex, setIndex } = e.detail;
     const service = this._service || new WorkoutService();
@@ -135,19 +128,16 @@ Page<IPageData, {}>({
 
     const set = newState.exercises[exIndex].sets[setIndex];
     if (set.completed && set.rest_seconds > 0) {
-      const name = newState.exercises[exIndex].exercise.name;
-      this.startRestTimer(name, setIndex, set.rest_seconds);
+      this.startRestTimer(exIndex, setIndex, newState.exercises[exIndex].exercise.name, set.rest_seconds);
     }
   },
 
-  /** 修改休息秒数 */
   onSetRestChange(e: any) {
     const { exIndex, setIndex, value } = e.detail;
     const service = this._service || new WorkoutService();
     this.setData({ state: service.updateSetRest(this.data.state!, exIndex, setIndex, value) });
   },
 
-  /** 复制组 */
   onSetDuplicate(e: any) {
     const { exIndex, setIndex } = e.detail;
     const service = this._service || new WorkoutService();
@@ -158,59 +148,42 @@ Page<IPageData, {}>({
 
   finishWorkout() {
     if (!this.data.state || this.data.state.isEmpty()) {
-      wx.showToast({ title: '请至少添加一个动作', icon: 'none' });
-      return;
+      wx.showToast({ title: '请至少添加一个动作', icon: 'none' }); return;
     }
     wx.showModal({
-      title: '完成训练',
-      content: '确定要结束本次训练吗？',
+      title: '完成训练', content: '确定要结束本次训练吗？',
       success: (res) => { if (res.confirm) this.saveWorkout(); },
     });
   },
 
   async saveWorkout() {
-    this.setData({ saving: true });
-    wx.showLoading({ title: '保存中...' });
-
+    this.setData({ saving: true }); wx.showLoading({ title: '保存中...' });
     const state = this.data.state!;
     const durationMin = Math.round(this.data.elapsedSeconds / 60);
     const service = this._service || new WorkoutService();
     const result = await service.saveWorkout(state, durationMin, '');
-
     wx.hideLoading();
-    if (result.success) {
-      this.showWorkoutSummary(durationMin);
-      this.resetWorkout();
-    }
+    if (result.success) { this.showWorkoutSummary(durationMin); this.resetWorkout(); }
     this.setData({ saving: false });
   },
 
   showWorkoutSummary(durationMin: number) {
     const state = this.data.state!;
-    const exerciseCount = state.exercises.length;
-    const totalSets = state.getTotalSets();
-    const names = state.exercises.map((ex) => ex.exercise.name).join('、');
     wx.showModal({
       title: '💪 训练完成！',
-      content: `${exerciseCount} 个动作 · ${totalSets} 组 · ${durationMin} 分钟\n\n${names}`,
-      showCancel: false,
-      confirmText: '好的',
+      content: `${state.exercises.length} 个动作 · ${state.getTotalSets()} 组 · ${durationMin} 分钟\n\n${state.exercises.map((ex) => ex.exercise.name).join('、')}`,
+      showCancel: false, confirmText: '好的',
     });
   },
 
   resetWorkout() {
-    this.stopTimer();
-    this.stopRestTimer();
-    this._startTime = null;
-    this._service = null;
+    this.stopTimer(); this.stopRestTimer();
+    this._startTime = null; this._service = null;
     CacheManager.getInstance().invalidate('index');
     wx.removeStorageSync('index_cache');
     this.setData({
-      isWorkoutActive: false,
-      state: null,
-      elapsedSeconds: 0,
-      timerText: '00:00',
-      restTimer: null,
+      isWorkoutActive: false, state: null, elapsedSeconds: 0, timerText: '00:00',
+      rtVisible: false, rtMinimized: false, rtSeconds: 0, rtDisplay: '00:00',
     });
   },
 
@@ -230,49 +203,44 @@ Page<IPageData, {}>({
     if (this._timerInterval) { clearInterval(this._timerInterval); this._timerInterval = null; }
   },
 
-  // ===== 组间倒计时 =====
+  // ===== 组间倒计时（全部扁平字段）=====
 
-  fmtTimer(seconds: number): string {
-    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const s = String(seconds % 60).padStart(2, '0');
-    return `${m}:${s}`;
+  fmtTimer(s: number): string {
+    if (s <= 0) return '00:00';
+    const m = String(Math.floor(s / 60)).padStart(2, '0');
+    const sec = String(s % 60).padStart(2, '0');
+    return `${m}:${sec}`;
   },
 
-  startRestTimer(exerciseName: string, setIndex: number, seconds: number) {
+  startRestTimer(exIndex: number, setIndex: number, exerciseName: string, seconds: number) {
     if (seconds <= 0) return;
     this.stopRestTimer();
-    this._rtSeconds = seconds;
-    this._rtTotal = seconds;
-    this._rtExercise = exerciseName;
-    this._rtSetIndex = setIndex;
+    this._rtStartedAt = Date.now();
     this.setData({
-      restTimer: {
-        visible: true,
-        minimized: false,
-        seconds,
-        total: seconds,
-        display: this.fmtTimer(seconds),
-        exerciseName,
-        setIndex,
-      },
+      rtVisible: true, rtMinimized: false, rtSeconds: seconds, rtTotal: seconds,
+      rtDisplay: this.fmtTimer(seconds), rtExercise: exerciseName,
+      rtSetIndex: setIndex, rtExIndex: exIndex,
     });
     this._restInterval = setInterval(() => {
-      this._rtSeconds = this._rtSeconds - 1;
-      if (this._rtSeconds <= 0) {
-        this.finishRestTimer();
+      const remaining = this.data.rtSeconds - 1;
+      if (remaining <= 0) {
+        this.finishRestTimer(true);
       } else {
-        this.setData({
-          'restTimer.seconds': this._rtSeconds,
-          'restTimer.display': this.fmtTimer(this._rtSeconds),
-        });
+        this.setData({ rtSeconds: remaining, rtDisplay: this.fmtTimer(remaining) });
       }
     }, 1000) as unknown as number;
   },
 
-  finishRestTimer() {
+  /** 结束倒计时。full=true 表示倒计时归零 */
+  finishRestTimer(full: boolean = false) {
+    const elapsed = Math.round((Date.now() - this._rtStartedAt) / 1000);
+    const actualRest = full ? this.data.rtTotal : Math.max(elapsed, 1);
     this.stopRestTimer();
     wx.vibrateShort({ type: 'medium' });
-    this.setData({ restTimer: null });
+    // 更新组的实际休息时长
+    const service = this._service || new WorkoutService();
+    const newState = service.updateSetRest(this.data.state!, this.data.rtExIndex, this.data.rtSetIndex, actualRest);
+    this.setData({ state: newState, rtVisible: false });
   },
 
   stopRestTimer() {
@@ -280,35 +248,25 @@ Page<IPageData, {}>({
   },
 
   onRestAdd10() {
-    this._rtSeconds = this._rtSeconds + 10;
-    this._rtTotal = this._rtTotal + 10;
-    this.setData({
-      'restTimer.seconds': this._rtSeconds,
-      'restTimer.total': this._rtTotal,
-      'restTimer.display': this.fmtTimer(this._rtSeconds),
-    });
+    const s = this.data.rtSeconds + 10;
+    this.setData({ rtSeconds: s, rtTotal: this.data.rtTotal + 10, rtDisplay: this.fmtTimer(s) });
   },
 
   onRestSub10() {
-    if (this._rtSeconds <= 10) return;
-    this._rtSeconds = this._rtSeconds - 10;
-    this._rtTotal = this._rtTotal - 10;
-    this.setData({
-      'restTimer.seconds': this._rtSeconds,
-      'restTimer.total': this._rtTotal,
-      'restTimer.display': this.fmtTimer(this._rtSeconds),
-    });
+    if (this.data.rtSeconds <= 10) return;
+    const s = this.data.rtSeconds - 10;
+    this.setData({ rtSeconds: s, rtTotal: this.data.rtTotal - 10, rtDisplay: this.fmtTimer(s) });
   },
 
   onRestSkip() {
-    this.finishRestTimer();
+    this.finishRestTimer(false);
   },
 
   onRestMinimize() {
-    this.setData({ 'restTimer.minimized': true });
+    this.setData({ rtMinimized: true });
   },
 
   onRestExpand() {
-    this.setData({ 'restTimer.minimized': false });
+    this.setData({ rtMinimized: false });
   },
 });

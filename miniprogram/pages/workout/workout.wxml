@@ -1,25 +1,18 @@
-<!-- pages/workout/workout.wxml — 训练页（重构后） -->
+<!-- pages/workout/workout.wxml — 训练页 -->
 <view class="container">
-  <!-- 未开始训练：引导页 -->
   <view wx:if="{{!isWorkoutActive}}" class="workout-start card text-center">
     <text class="start-icon">🏋️</text>
     <text class="start-title">准备开始训练</text>
     <text class="start-desc">记录你的每一次进步</text>
-    <button class="btn-primary" hover-class="btn-primary--hover" bindtap="startWorkout">开始新训练</button>
+    <button class="btn-primary" bindtap="startWorkout">开始新训练</button>
   </view>
 
-  <!-- 训练进行中 -->
   <view wx:if="{{isWorkoutActive && state}}">
-    <!-- 计时器卡片 -->
     <view class="card timer-card flex-between">
-      <view>
-        <text class="timer-label">训练时长</text>
-        <text class="timer-value">{{timerText}}</text>
-      </view>
+      <view><text class="timer-label">训练时长</text><text class="timer-value">{{timerText}}</text></view>
       <text class="timer-badge">进行中</text>
     </view>
 
-    <!-- 已选动作列表 -->
     <exercise-card
       wx:for="{{state.exercises}}"
       wx:key="exercise._id"
@@ -40,27 +33,21 @@
       bind:setduplicate="onSetDuplicate"
     />
 
-    <!-- 底部操作栏 -->
     <view class="workout-actions">
-      <button class="btn-outline" hover-class="btn-outline--hover" bindtap="openExercisePicker">
-        + 添加动作
-      </button>
-
-      <button class="btn-primary" hover-class="btn-primary--hover" bindtap="finishWorkout" loading="{{saving}}">
-        完成训练
-      </button>
+      <button class="btn-outline" bindtap="openExercisePicker">+ 添加动作</button>
+      <button class="btn-primary" bindtap="finishWorkout" loading="{{saving}}">完成训练</button>
     </view>
   </view>
 
-  <!-- 组间倒计时弹窗 -->
-  <view wx:if="{{restTimer && restTimer.visible && !restTimer.minimized}}" class="rest-overlay">
+  <!-- 倒计时弹窗 -->
+  <view wx:if="{{rtVisible && !rtMinimized}}" class="rest-overlay">
     <view class="rest-modal">
       <view class="rest-modal-header">
         <text></text>
         <text class="rest-minimize-btn" bindtap="onRestMinimize">— 最小化</text>
       </view>
-      <text class="rest-exercise-label">{{restTimer.exerciseName}} 第 {{restTimer.setIndex + 1}} 组</text>
-      <text class="rest-countdown">{{restTimer.display}}</text>
+      <text class="rest-exercise-label">{{rtExercise}} 第 {{rtSetIndex + 1}} 组</text>
+      <text class="rest-countdown">{{rtDisplay}}</text>
       <view class="rest-actions">
         <button class="rest-btn rest-btn--add" bindtap="onRestAdd10">＋10s</button>
         <button class="rest-btn rest-btn--skip" bindtap="onRestSkip">跳过</button>
@@ -70,9 +57,8 @@
     </view>
   </view>
 
-  <!-- 最小化倒计时条 -->
-  <view wx:if="{{restTimer && restTimer.visible && restTimer.minimized}}" class="rest-minibar">
-    <text class="rest-minibar-text">⏱ 组间休息 {{restTimer.display}}</text>
+  <view wx:if="{{rtVisible && rtMinimized}}" class="rest-minibar">
+    <text class="rest-minibar-text">⏱ 组间休息 {{rtDisplay}}</text>
     <text class="rest-minibar-expand" bindtap="onRestExpand">展开</text>
   </view>
 </view>
