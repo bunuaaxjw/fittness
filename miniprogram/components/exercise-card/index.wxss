@@ -4,8 +4,47 @@
   padding: 24rpx 28rpx;
 }
 
+/* ===== 动作头部 ===== */
 .ex-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
   margin-bottom: 12rpx;
+}
+
+.ex-media {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+  background: #f5f5f5;
+}
+
+.ex-gif {
+  width: 72rpx;
+  height: 72rpx;
+}
+
+.ex-icon {
+  font-size: 48rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+  width: 72rpx;
+  text-align: center;
+}
+
+.ex-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ex-name-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .ex-name {
@@ -23,18 +62,38 @@
   margin-left: 12rpx;
 }
 
+.ex-instructions-toggle {
+  font-size: 22rpx;
+  color: #0f3460;
+  margin-top: 6rpx;
+  display: inline-block;
+}
+
+.ex-instructions {
+  background: #f8f9fa;
+  border-radius: 8rpx;
+  padding: 16rpx 20rpx;
+  margin-bottom: 12rpx;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
 .ex-remove {
   font-size: 28rpx;
   color: #ccc;
   padding: 8rpx 12rpx;
+  flex-shrink: 0;
 }
 
+/* ===== 分隔线 ===== */
 .divider {
   height: 1rpx;
   background: #f0f0f0;
   margin-bottom: 12rpx;
 }
 
+/* ===== 组列表头 ===== */
 .set-header {
   padding: 8rpx 0;
   margin-bottom: 4rpx;
@@ -45,12 +104,13 @@
   color: #999;
 }
 
-.set-col--num { width: 48rpx; text-align: center; }
+.set-col--num { width: 60rpx; text-align: center; }
 .set-col--weight { flex: 1; text-align: center; }
 .set-col--reps { flex: 1; text-align: center; }
-.set-col--notes { flex: 1.4; text-align: center; }
-.set-col--action { width: 48rpx; text-align: center; }
+.set-col--notes { flex: 1.5; text-align: center; }
+.set-col--action { width: 50rpx; text-align: center; }
 
+/* ===== 添加组按钮 ===== */
 .btn-add-set {
   width: 100%;
   margin-top: 8rpx;
