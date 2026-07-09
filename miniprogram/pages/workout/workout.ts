@@ -8,6 +8,14 @@ interface IPageData {
   elapsedSeconds: number;
   timerText: string;
   saving: boolean;
+  restTimer: {
+    visible: boolean;
+    minimized: boolean;
+    seconds: number;
+    total: number;
+    exerciseName: string;
+    setIndex: number;
+  } | null;
 }
 
 Page<IPageData, {}>({
@@ -17,14 +25,17 @@ Page<IPageData, {}>({
     elapsedSeconds: 0,
     timerText: '00:00',
     saving: false,
+    restTimer: null,
   },
 
   _timerInterval: null as number | null,
+  _restInterval: null as number | null,
   _startTime: null as number | null,
   _service: null as WorkoutService | null,
 
   onUnload() {
     this.stopTimer();
+    this.stopRestTimer();
   },
 
   // ===== 训练流程 =====
@@ -110,6 +121,34 @@ Page<IPageData, {}>({
     this.setData({ state: newState });
   },
 
+  /** 切换完成状态 → 已完成时触发倒计时 */
+  onSetToggleComplete(e: any) {
+    const { exIndex, setIndex } = e.detail;
+    const service = this._service || new WorkoutService();
+    const newState = service.toggleSetComplete(this.data.state!, exIndex, setIndex);
+    this.setData({ state: newState });
+
+    const set = newState.exercises[exIndex].sets[setIndex];
+    if (set.completed && set.rest_seconds > 0) {
+      const name = newState.exercises[exIndex].exercise.name;
+      this.startRestTimer(name, setIndex, set.rest_seconds);
+    }
+  },
+
+  /** 修改休息秒数 */
+  onSetRestChange(e: any) {
+    const { exIndex, setIndex, value } = e.detail;
+    const service = this._service || new WorkoutService();
+    this.setData({ state: service.updateSetRest(this.data.state!, exIndex, setIndex, value) });
+  },
+
+  /** 复制组 */
+  onSetDuplicate(e: any) {
+    const { exIndex, setIndex } = e.detail;
+    const service = this._service || new WorkoutService();
+    this.setData({ state: service.duplicateSet(this.data.state!, exIndex, setIndex) });
+  },
+
   // ===== 完成训练 =====
 
   finishWorkout() {
@@ -156,6 +195,7 @@ Page<IPageData, {}>({
 
   resetWorkout() {
     this.stopTimer();
+    this.stopRestTimer();
     this._startTime = null;
     this._service = null;
     CacheManager.getInstance().invalidate('index');
@@ -165,6 +205,7 @@ Page<IPageData, {}>({
       state: null,
       elapsedSeconds: 0,
       timerText: '00:00',
+      restTimer: null,
     });
   },
 
@@ -182,5 +223,66 @@ Page<IPageData, {}>({
 
   stopTimer() {
     if (this._timerInterval) { clearInterval(this._timerInterval); this._timerInterval = null; }
+  },
+
+  // ===== 组间倒计时 =====
+
+  startRestTimer(exerciseName: string, setIndex: number, seconds: number) {
+    if (seconds <= 0) return;
+    this.stopRestTimer();
+    this.setData({
+      restTimer: {
+        visible: true,
+        minimized: false,
+        seconds,
+        total: seconds,
+        exerciseName,
+        setIndex,
+      },
+    });
+    this._restInterval = setInterval(() => {
+      const rt = this.data.restTimer;
+      if (!rt || rt.seconds <= 0) return;
+      const newSeconds = rt.seconds - 1;
+      if (newSeconds <= 0) {
+        this.finishRestTimer();
+      } else {
+        this.setData({ 'restTimer.seconds': newSeconds });
+      }
+    }, 1000) as unknown as number;
+  },
+
+  finishRestTimer() {
+    this.stopRestTimer();
+    wx.vibrateShort({ type: 'medium' });
+    this.setData({ restTimer: null });
+  },
+
+  stopRestTimer() {
+    if (this._restInterval) { clearInterval(this._restInterval); this._restInterval = null; }
+  },
+
+  onRestAdd10() {
+    const rt = this.data.restTimer;
+    if (!rt) return;
+    this.setData({ 'restTimer.seconds': rt.seconds + 10, 'restTimer.total': rt.total + 10 });
+  },
+
+  onRestSub10() {
+    const rt = this.data.restTimer;
+    if (!rt || rt.seconds <= 10) return;
+    this.setData({ 'restTimer.seconds': rt.seconds - 10, 'restTimer.total': rt.total - 10 });
+  },
+
+  onRestSkip() {
+    this.finishRestTimer();
+  },
+
+  onRestMinimize() {
+    this.setData({ 'restTimer.minimized': true });
+  },
+
+  onRestExpand() {
+    this.setData({ 'restTimer.minimized': false });
   },
 });
