@@ -5,7 +5,8 @@
 import { CacheManager } from './cache';
 import { ALL_EXERCISES } from '../data/exercises';
 
-const db = wx.cloud.database();
+/** 懒加载 db 实例（避免模块加载时 wx.cloud 未初始化） */
+function db() { return wx.cloud.database(); }
 const COLLECTION = 'exercises';
 const RECENT_KEY = 'recent_exercise_ids';
 const MAX_RECENT = 20;
@@ -24,7 +25,7 @@ class ExerciseDAL {
     if (cached) return { success: true, data: cached };
 
     try {
-      const res = await db.collection(COLLECTION)
+      const res = await db().collection(COLLECTION)
         .orderBy('name', 'asc')
         .limit(1000)
         .get();
@@ -42,7 +43,7 @@ class ExerciseDAL {
     if (cached) return { success: true, data: cached };
 
     try {
-      const res = await db.collection(COLLECTION)
+      const res = await db().collection(COLLECTION)
         .where({ body_part: part })
         .orderBy('name', 'asc')
         .get();
@@ -60,9 +61,9 @@ class ExerciseDAL {
     if (cached) return { success: true, data: cached };
 
     try {
-      const _ = db.command;
-      const regex = db.RegExp({ regexp: keyword, options: 'i' });
-      const res = await db.collection(COLLECTION)
+      const _ = db().command;
+      const regex = db().RegExp({ regexp: keyword, options: 'i' });
+      const res = await db().collection(COLLECTION)
         .where(_.or([{ name: regex }, { name_en: regex }]))
         .orderBy('name', 'asc')
         .limit(50)
@@ -82,8 +83,8 @@ class ExerciseDAL {
     if (cached) return { success: true, data: cached };
 
     try {
-      const _ = db.command;
-      const res = await db.collection(COLLECTION)
+      const _ = db().command;
+      const res = await db().collection(COLLECTION)
         .where({ _id: _.in(ids) })
         .get();
       this.cache.set(cacheKey, res.data);
@@ -123,7 +124,7 @@ class ExerciseDAL {
    */
   async seedIfEmpty(): Promise<void> {
     try {
-      const countRes = await db.collection(COLLECTION).count();
+      const countRes = await db().collection(COLLECTION).count();
       if (countRes.total > 0) return; // 已有数据，跳过
     } catch {
       // 集合可能不存在，继续导入
@@ -134,7 +135,7 @@ class ExerciseDAL {
       const batch = ALL_EXERCISES.slice(i, i + BATCH_SIZE);
       try {
         await Promise.all(
-          batch.map((ex) => db.collection(COLLECTION).add({ data: ex })),
+          batch.map((ex) => db().collection(COLLECTION).add({ data: ex })),
         );
       } catch (err) {
         console.warn(`[ExerciseDAL] 种子导入第 ${Math.floor(i / BATCH_SIZE) + 1} 批失败`, err);

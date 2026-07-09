@@ -5,7 +5,8 @@
 import { CacheManager } from './cache';
 import { showError } from '../utils/error';
 
-const db = wx.cloud.database();
+/** 懒加载 db 实例（避免模块加载时 wx.cloud 未初始化） */
+function db() { return wx.cloud.database(); }
 const COLL_WORKOUTS = 'workouts';
 const COLL_SETS = 'sets';
 
@@ -38,7 +39,7 @@ class WorkoutDAL {
   /** 客户端降级保存 */
   private async clientSave(data: IWorkoutData): Promise<IDbResult> {
     try {
-      const workoutRes = await db.collection(COLL_WORKOUTS).add({
+      const workoutRes = await db().collection(COLL_WORKOUTS).add({
         data: {
           date: data.date,
           duration_min: data.duration_min,
@@ -49,7 +50,7 @@ class WorkoutDAL {
       const workoutId = workoutRes._id;
       let sortOrder = 0;
       for (const set of data.sets) {
-        await db.collection(COLL_SETS).add({
+        await db().collection(COLL_SETS).add({
           data: {
             workout_id: workoutId,
             exercise_id: set.exercise_id,
@@ -90,8 +91,8 @@ class WorkoutDAL {
   /** 删除训练记录 */
   async delete(id: string): Promise<IDbResult> {
     try {
-      await db.collection(COLL_SETS).where({ workout_id: id }).remove();
-      await db.collection(COLL_WORKOUTS).doc(id).remove();
+      await db().collection(COLL_SETS).where({ workout_id: id }).remove();
+      await db().collection(COLL_WORKOUTS).doc(id).remove();
       this.cache.invalidate('workouts');
       return { success: true };
     } catch (err) {
@@ -103,8 +104,8 @@ class WorkoutDAL {
   /** 按 ID 获取单条训练（含组数据） */
   async getById(id: string): Promise<IDbResult<IWorkoutData>> {
     try {
-      const workout = await db.collection(COLL_WORKOUTS).doc(id).get();
-      const sets = await db.collection(COLL_SETS)
+      const workout = await db().collection(COLL_WORKOUTS).doc(id).get();
+      const sets = await db().collection(COLL_SETS)
         .where({ workout_id: id })
         .orderBy('sort_order', 'asc')
         .get();
@@ -125,8 +126,8 @@ class WorkoutDAL {
     if (cached) return { success: true, data: cached };
 
     try {
-      const _ = db.command;
-      let query = db.collection(COLL_WORKOUTS).orderBy('_id', 'desc').limit(pageSize);
+      const _ = db().command;
+      let query = db().collection(COLL_WORKOUTS).orderBy('_id', 'desc').limit(pageSize);
       if (cursor) {
         query = query.where({ _id: _.lt(cursor) });
       }
@@ -146,7 +147,7 @@ class WorkoutDAL {
     if (cached) return { success: true, data: cached };
 
     try {
-      const res = await db.collection(COLL_WORKOUTS).where({ date }).get();
+      const res = await db().collection(COLL_WORKOUTS).where({ date }).get();
       this.cache.set(cacheKey, res.data);
       return { success: true, data: res.data as IWorkoutData[] };
     } catch (err) {

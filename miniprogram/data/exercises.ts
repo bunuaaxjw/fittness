@@ -23,7 +23,10 @@ const CATEGORY_MAP: Record<string, string> = {
   'stability ball': '器械', weighted: '器械',
 };
 
-const BUILTIN_EXERCISES: IExerciseExtended[] = [
+// 种子数据类型（不含 _id / created_at，这些由数据库生成）
+type SeedExercise = Omit<IExerciseExtended, '_id' | 'created_at'>;
+
+const BUILTIN_EXERCISES: SeedExercise[] = [
   {
     name: "杠铃卧推",
     body_part: "胸",
@@ -494,7 +497,7 @@ const BUILTIN_EXERCISES: IExerciseExtended[] = [
   }
 ];
 
-const EXTENDED_EXERCISES: IExerciseExtended[] = [
+const EXTENDED_EXERCISES: SeedExercise[] = [
   {
     name: "3/4 sit-up",
     name_en: "3/4 sit-up",
@@ -2447,6 +2450,6 @@ const EXTENDED_EXERCISES: IExerciseExtended[] = [
   }
 ];
 
-const ALL_EXERCISES: IExerciseExtended[] = [...BUILTIN_EXERCISES, ...EXTENDED_EXERCISES];
+const ALL_EXERCISES: SeedExercise[] = [...BUILTIN_EXERCISES, ...EXTENDED_EXERCISES];
 
 export { BUILTIN_EXERCISES, EXTENDED_EXERCISES, ALL_EXERCISES, CDN_BASE, BODY_PART_MAP, CATEGORY_MAP };

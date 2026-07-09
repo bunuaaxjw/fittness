@@ -225,15 +225,18 @@ const CATEGORY_MAP: Record<string, string> = {
   'stability ball': '器械', weighted: '器械',
 };
 
-const BUILTIN_EXERCISES: IExerciseExtended[] = [
+// 种子数据类型（不含 _id / created_at，这些由数据库生成）
+type SeedExercise = Omit<IExerciseExtended, '_id' | 'created_at'>;
+
+const BUILTIN_EXERCISES: SeedExercise[] = [
 ${BUILTIN.map((e) => formatExerciseObj({ ...e, source: 'builtin' }, '  ')).join(',\n')}
 ];
 
-const EXTENDED_EXERCISES: IExerciseExtended[] = [
+const EXTENDED_EXERCISES: SeedExercise[] = [
 ${extended.map((e) => formatExerciseObj(e, '  ')).join(',\n')}
 ];
 
-const ALL_EXERCISES: IExerciseExtended[] = [...BUILTIN_EXERCISES, ...EXTENDED_EXERCISES];
+const ALL_EXERCISES: SeedExercise[] = [...BUILTIN_EXERCISES, ...EXTENDED_EXERCISES];
 
 export { BUILTIN_EXERCISES, EXTENDED_EXERCISES, ALL_EXERCISES, CDN_BASE, BODY_PART_MAP, CATEGORY_MAP };
 `;
