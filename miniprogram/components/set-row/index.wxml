@@ -1,6 +1,7 @@
 <!-- components/set-row/index.wxml -->
-<view class="set-row flex-row">
+<view class="set-row {{completed ? 'set-row--done' : ''}}">
   <text class="set-col set-col--num">{{setIndex + 1}}</text>
+
   <input
     class="set-input"
     type="digit"
@@ -25,9 +26,26 @@
     data-field="notes"
     bindinput="onInput"
   />
-  <text
-    wx:if="{{showDelete}}"
-    class="set-col set-col--action set-del"
-    bindtap="onRemove"
-  >−</text>
+
+  <!-- 休息时长 -->
+  <input
+    class="set-input set-input--rest"
+    type="number"
+    placeholder="60"
+    value="{{restSeconds}}"
+    maxlength="3"
+    bindinput="onRestChange"
+  />
+  <text class="set-col--rest-unit">s</text>
+
+  <!-- 完成按钮 -->
+  <text class="set-col--toggle {{completed ? 'set-col--done' : ''}}" bindtap="onToggleComplete">
+    {{completed ? '☑' : '☐'}}
+  </text>
+
+  <!-- 菜单按钮 -->
+  <text wx:if="{{showMoreMenu}}" class="set-col--more" bindtap="onMore">⋯</text>
+
+  <!-- 完成后的休息时长标记 -->
+  <text wx:if="{{completed && restSeconds > 0}}" class="set-col--rest-tag">休息 {{restSeconds}}s</text>
 </view>
