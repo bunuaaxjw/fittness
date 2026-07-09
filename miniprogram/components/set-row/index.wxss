@@ -49,13 +49,9 @@
   min-height: auto;
 }
 
-/* 完成状态 — 方形框变绿 */
+/* 完成状态 — 三框统一色调 */
 .set-square--done {
   background: #d5f5e3;
-}
-
-.set-square--done.set-square--toggle {
-  background: #27ae60;
 }
 
 /* 完成按钮文字 */
@@ -67,7 +63,7 @@
 
 .set-toggle-check {
   font-size: 36rpx;
-  color: #fff;
+  color: #27ae60;
   font-weight: 700;
   line-height: 1;
 }

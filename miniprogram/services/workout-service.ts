@@ -150,7 +150,7 @@ class WorkoutService {
       const prev = sets[sets.length - 1];
       newSet.weight_kg = prev.weight_kg;
       newSet.reps = prev.reps;
-      newSet.rest_seconds = prev.rest_seconds;
+      // 不复制 rest_seconds，新组始终默认 60s
     }
     sets.push(newSet);
     return new WorkoutState(exercises, state.recentExercises, state.suggestions, state.startedAt);
