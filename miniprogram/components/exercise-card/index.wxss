@@ -105,8 +105,8 @@
 }
 
 .set-col--num { width: 60rpx; text-align: center; }
-.set-col--weight { flex: 1; text-align: center; }
-.set-col--reps { flex: 1; text-align: center; }
+.set-col--weight { width: 128rpx; flex: none; text-align: center; }
+.set-col--reps { width: 128rpx; flex: none; text-align: center; }
 .set-col--notes { flex: 1.5; text-align: center; }
 
 .set-col--actions-header {

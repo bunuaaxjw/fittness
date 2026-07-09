@@ -13,6 +13,7 @@ interface IPageData {
     minimized: boolean;
     seconds: number;
     total: number;
+    display: string;
     exerciseName: string;
     setIndex: number;
   } | null;
@@ -227,6 +228,12 @@ Page<IPageData, {}>({
 
   // ===== 组间倒计时 =====
 
+  fmtTimer(seconds: number): string {
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  },
+
   startRestTimer(exerciseName: string, setIndex: number, seconds: number) {
     if (seconds <= 0) return;
     this.stopRestTimer();
@@ -236,6 +243,7 @@ Page<IPageData, {}>({
         minimized: false,
         seconds,
         total: seconds,
+        display: this.fmtTimer(seconds),
         exerciseName,
         setIndex,
       },
@@ -247,7 +255,10 @@ Page<IPageData, {}>({
       if (newSeconds <= 0) {
         this.finishRestTimer();
       } else {
-        this.setData({ 'restTimer.seconds': newSeconds });
+        this.setData({
+          'restTimer.seconds': newSeconds,
+          'restTimer.display': this.fmtTimer(newSeconds),
+        });
       }
     }, 1000) as unknown as number;
   },
@@ -265,13 +276,15 @@ Page<IPageData, {}>({
   onRestAdd10() {
     const rt = this.data.restTimer;
     if (!rt) return;
-    this.setData({ 'restTimer.seconds': rt.seconds + 10, 'restTimer.total': rt.total + 10 });
+    const newSec = rt.seconds + 10;
+    this.setData({ 'restTimer.seconds': newSec, 'restTimer.total': rt.total + 10, 'restTimer.display': this.fmtTimer(newSec) });
   },
 
   onRestSub10() {
     const rt = this.data.restTimer;
     if (!rt || rt.seconds <= 10) return;
-    this.setData({ 'restTimer.seconds': rt.seconds - 10, 'restTimer.total': rt.total - 10 });
+    const newSec = rt.seconds - 10;
+    this.setData({ 'restTimer.seconds': newSec, 'restTimer.total': rt.total - 10, 'restTimer.display': this.fmtTimer(newSec) });
   },
 
   onRestSkip() {

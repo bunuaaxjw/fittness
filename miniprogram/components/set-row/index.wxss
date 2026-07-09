@@ -54,9 +54,10 @@
 }
 
 .set-toggle-check {
-  font-size: 24rpx;
-  color: #333;
+  font-size: 28rpx;
+  color: #1a1a1a;
   font-weight: 700;
+  line-height: 1;
 }
 
 /* 更多菜单列（垂直布局：休息时间在上，...在下） */

@@ -29,7 +29,7 @@
     <text
       wx:if="{{completed && restSeconds > 0}}"
       class="set-col--rest-timer"
-    >{{formatRestTime(restSeconds)}}</text>
+    >{{restTimerText}}</text>
     <text
       wx:if="{{showMoreMenu}}"
       class="set-col--more"

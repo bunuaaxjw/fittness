@@ -60,7 +60,7 @@
         <text class="rest-minimize-btn" bindtap="onRestMinimize">— 最小化</text>
       </view>
       <text class="rest-exercise-label">{{restTimer.exerciseName}} 第 {{restTimer.setIndex + 1}} 组</text>
-      <text class="rest-countdown">{{restTimer.seconds < 60 ? '0:' + (restTimer.seconds < 10 ? '0' : '') + restTimer.seconds : Math.floor(restTimer.seconds / 60) + ':' + (restTimer.seconds % 60 < 10 ? '0' : '') + (restTimer.seconds % 60)}}</text>
+      <text class="rest-countdown">{{restTimer.display}}</text>
       <view class="rest-actions">
         <button class="rest-btn rest-btn--add" bindtap="onRestAdd10">＋10s</button>
         <button class="rest-btn rest-btn--skip" bindtap="onRestSkip">跳过</button>
@@ -72,7 +72,7 @@
 
   <!-- 最小化倒计时条 -->
   <view wx:if="{{restTimer && restTimer.visible && restTimer.minimized}}" class="rest-minibar">
-    <text class="rest-minibar-text">⏱ 组间休息 {{restTimer.seconds < 60 ? '0:' + (restTimer.seconds < 10 ? '0' : '') + restTimer.seconds : Math.floor(restTimer.seconds / 60) + ':' + (restTimer.seconds % 60 < 10 ? '0' : '') + (restTimer.seconds % 60)}}</text>
+    <text class="rest-minibar-text">⏱ 组间休息 {{restTimer.display}}</text>
     <text class="rest-minibar-expand" bindtap="onRestExpand">展开</text>
   </view>
 </view>
