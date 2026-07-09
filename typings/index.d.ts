@@ -69,6 +69,8 @@ interface ISetFormData {
   weight_kg: number | string;
   reps: number | string;
   notes: string;
+  rest_seconds: number;    // 组间休息秒数，默认 60
+  completed: boolean;      // 是否已完成，默认 false
 }
 
 /** 训练详情/历史详情 — 带分组的动作 */
