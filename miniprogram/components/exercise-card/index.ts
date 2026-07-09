@@ -35,5 +35,14 @@ Component({
     onSetRemove(e: any) {
       this.triggerEvent('setremove', e.detail);
     },
+    onSetToggleComplete(e: any) {
+      this.triggerEvent('settogglecomplete', e.detail);
+    },
+    onSetRestChange(e: any) {
+      this.triggerEvent('setrestchange', e.detail);
+    },
+    onSetDuplicate(e: any) {
+      this.triggerEvent('setduplicate', e.detail);
+    },
   },
 });

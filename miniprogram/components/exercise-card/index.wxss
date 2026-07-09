@@ -110,6 +110,25 @@
 .set-col--notes { flex: 1.5; text-align: center; }
 .set-col--action { width: 50rpx; text-align: center; }
 
+.set-col--rest-header {
+  flex: none;
+  width: 88rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #999;
+}
+
+.set-col--toggle-header {
+  width: 44rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #999;
+}
+
+.set-col--more-header {
+  width: 36rpx;
+}
+
 /* ===== 添加组按钮 ===== */
 .btn-add-set {
   width: 100%;
